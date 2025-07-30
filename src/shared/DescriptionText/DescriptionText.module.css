@@ -1,0 +1,5 @@
+.text {
+  color: rgba(0, 0, 0, 0.45);
+  font-size: smaller;
+  /* white-space: pre-line; */
+}

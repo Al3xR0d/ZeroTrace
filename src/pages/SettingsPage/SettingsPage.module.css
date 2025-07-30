@@ -1,0 +1,224 @@
+/* :root {
+  --bg-main: #0a0a0a;
+  --border: #333;
+  --accent: #00db00;
+  --accent-light: rgba(0, 219, 0, 0.1);
+  --glow: rgba(0, 219, 0, 0.4);
+} */
+.backgroundContainer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url('../../images/settings.webp');
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  z-index: 100;
+}
+.backgroundContainer::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: #212121;
+  mix-blend-mode: multiply;
+  animation: flicker 3s infinite;
+  z-index: -1;
+}
+
+@keyframes flicker {
+  0%,
+  100% {
+    opacity: 0.9;
+  }
+  50% {
+    opacity: 0.88;
+  }
+}
+
+.pageWrapper {
+  position: relative;
+  width: 100%;
+  height: 90vh;
+  /* background: #0a0a0a; */
+  /* border: 1px solid #333333; */
+  /* border-radius: 8px; */
+  /* box-shadow: 0 4px 20px rgba(0, 0, 0, 0.7); */
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  z-index: 2;
+}
+
+.vramBar {
+  margin-bottom: 24px;
+}
+
+.closeIcon {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  color: #00db00;
+  font-size: 28px;
+  cursor: pointer;
+  transition: transform 0.3s;
+  z-index: 3;
+}
+.closeIcon:hover {
+  transform: scale(1.15);
+  color: #ff7875;
+  text-shadow: 0 0 12px rgba(255, 77, 79, 0.8);
+}
+
+.title {
+  font-family: 'Source Code Pro', monospace;
+  color: #eef3ff;
+  text-align: center;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  text-shadow: 0 0 8px #00db0042;
+  margin: 0 0 24px;
+}
+
+.customTabs {
+  flex: 1;
+}
+.customTabs .ant-tabs-nav {
+  margin-bottom: 16px;
+}
+.customTabs .ant-tabs-tab {
+  font-family: monospace;
+  font-size: 14px;
+  text-transform: uppercase;
+  border: 1px solid #333333 !important;
+  background: #0a0a0acc !important;
+  border-radius: 4px !important;
+  margin-right: 8px !important;
+  padding: 12px 16px !important;
+  transition: box-shadow 0.3s;
+}
+.customTabs .ant-tabs-tab-active {
+  border-color: #00db00 !important;
+  box-shadow: 0 0 12px #00db00;
+  background: #00db001a !important;
+}
+.customTabs .ant-tabs-ink-bar {
+  background: #00db00 !important;
+}
+
+.tabLabel {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #eef3ff;
+}
+
+.tabContent {
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 8px;
+}
+.tabContent::-webkit-scrollbar {
+  width: 6px;
+}
+.tabContent::-webkit-scrollbar-track {
+  background: transparent;
+}
+.tabContent::-webkit-scrollbar-thumb {
+  background: #00db001a;
+  border-radius: 3px;
+}
+.tabContent::-webkit-scrollbar-thumb:hover {
+  background: #00db00;
+}
+
+.settingRow {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 16px;
+  width: 70%;
+  margin-bottom: 12px;
+  padding: 12px 16px;
+  background: #0a0a0acc;
+  border: 1px solid #333333;
+  border-radius: 4px;
+  color: #eef3ff;
+  transition:
+    box-shadow 0.3s,
+    border-color 0.3s;
+}
+.settingRow:hover {
+  border-color: #00db00;
+  box-shadow: 0 0 15px #00db00;
+}
+
+.settingLabel {
+  font-size: 16px;
+  letter-spacing: 0.5px;
+}
+
+.settingAction {
+  text-align: right;
+}
+
+.settingButton {
+  background: transparent;
+  border: none;
+  color: #00db00;
+  font-family: monospace;
+  font-size: 14px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition:
+    transform 0.2s,
+    background 0.2s;
+}
+.settingButton:hover {
+  background: #00db001a;
+  transform: scale(1.05);
+  text-shadow: 0 0 8px #00db0042;
+}
+
+.customTooltip .ant-tooltip-inner {
+  background: #00db00 !important;
+  color: #000;
+  font-weight: 500;
+  border-radius: 4px;
+  padding: 8px 12px;
+  box-shadow: 0 0 10px #00db00;
+}
+.customTooltip .ant-tooltip-arrow::before {
+  background: #00db00 !important;
+}
+
+.divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent 0%, #333333 20%, #333333 80%, transparent 100%);
+  margin: 4px auto;
+  width: 70%;
+}
+
+.customTooltip.ant-tooltip-show .ant-tooltip-inner {
+  background-color: #00db00 !important;
+  color: #000;
+  font-weight: 500;
+}
+
+.customTooltip.ant-tooltip-show .ant-tooltip-arrow-content {
+  background-color: #00db00 !important;
+}
+
+.settingAction :is(button, .ant-switch):hover + .ant-tooltip-show .ant-tooltip-inner {
+  box-shadow: 0 0 8px #00db00;
+}
+
+:global(.ant-tabs-tab:hover:not(.ant-tabs-tab-active)) {
+  scale: 1.02;
+}

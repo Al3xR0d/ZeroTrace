@@ -1,0 +1,31 @@
+# Environment
+.env
+.env.local
+.env*.local
+
+node_modules/
+.pnpm-store/
+
+# Build
+dist/
+.cache/
+.turbo/
+*.temp
+*.build
+
+# System
+.DS_Store
+.thumbs.db
+desktop.ini
+
+# IDE
+.vscode/
+.idea/
+*.suo
+.history/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*

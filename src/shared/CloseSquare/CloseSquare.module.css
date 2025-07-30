@@ -1,0 +1,16 @@
+.closeIcon {
+  /* position: absolute; */
+  top: 20px;
+  left: 20px;
+  font-size: 28px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: #00db00;
+  z-index: 10;
+}
+
+.closeIcon:hover {
+  /* transform: scale(1.15); */
+  color: #ff7875;
+  text-shadow: 0 0 12px rgba(255, 77, 79, 0.8);
+}

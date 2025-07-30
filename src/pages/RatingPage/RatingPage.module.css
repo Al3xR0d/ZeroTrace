@@ -1,0 +1,202 @@
+/* .pageContainer {
+  display: flex;
+  flex-direction: column;
+  padding: 24px;
+  color: #00db00;
+  position: relative;
+  min-width: 595px;
+  background: linear-gradient(135deg, #0c0c0c 0%, #1a1a1a 100%);
+}
+
+.pageHeader {
+  font-size: 24px;
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.closeIcon {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  font-size: 24px;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.closeIcon:hover {
+  scale: 1.1;
+  color: red;
+}
+
+@media (max-width: 768px) {
+  .pageContainer {
+    padding: 15px;
+    min-width: 560px;
+  }
+
+  .title {
+    font-size: 1.5rem;
+    margin-bottom: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .pageContainer {
+    padding: 10px;
+    min-width: 360px;
+  }
+
+  .title {
+    font-size: 1.3rem;
+  }
+}
+
+@media (max-width: 380px) {
+  .pageContainer {
+    padding: 8px;
+    min-width: 320px;
+  }
+
+  .pageHeader {
+    font-size: 12px;
+    margin-bottom: 16px;
+  }
+} */
+
+.background {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #0c0c0c 0%, #1a1a1a 100%);
+  padding: 20px;
+}
+
+.pageContainer {
+  color: #00db00ed;
+  width: 700px;
+  background: #212121 !important;
+  border: 1px solid #333 !important;
+  border-radius: 8px !important;
+  position: relative;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.7);
+  overflow: hidden;
+  padding: 24px;
+}
+
+.pageHeader {
+  color: #eef3ff !important;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 24px !important;
+  font-weight: 600;
+  text-shadow: 0 0 10px rgba(238, 243, 255, 0.2);
+}
+
+.ratingTable {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 8px;
+}
+
+.ratingTable :global(.ant-table) {
+  background: transparent !important;
+}
+
+.ratingTable :global(.ant-table-thead > tr > th) {
+  background: rgba(0, 219, 0, 0.15) !important;
+  border: none !important;
+  color: #00db00 !important;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  text-align: center;
+  padding: 12px 8px;
+}
+
+.ratingTable :global(.ant-table-tbody > tr > td) {
+  background: rgba(10, 10, 10, 0.8) !important;
+  border: none !important;
+  border-top: 1px solid #333 !important;
+  border-bottom: 1px solid #333 !important;
+  padding: 12px 8px;
+  color: #eef3ff;
+}
+
+.ratingTable :global(.ant-table-tbody > tr:first-child > td) {
+  border-top: 1px solid #00db00 !important;
+}
+
+.ratingTable :global(.ant-table-tbody > tr > td:first-child) {
+  border-left: 1px solid #333;
+  border-radius: 4px 0 0 4px;
+}
+
+.ratingTable :global(.ant-table-tbody > tr > td:last-child) {
+  border-right: 1px solid #333;
+  border-radius: 0 4px 4px 0;
+}
+
+.tableRow:hover td {
+  background: rgba(30, 30, 30, 0.9) !important;
+  border-color: #00db00 !important;
+  box-shadow: 0 0 15px rgba(0, 219, 0, 0.15);
+}
+
+.rankCell {
+  font-weight: bold;
+  color: #00db00;
+  text-shadow: 0 0 8px rgba(0, 219, 0, 0.4);
+}
+
+.nameCell {
+  font-weight: 500;
+  color: #eef3ff;
+}
+
+.scoreCell {
+  font-weight: bold;
+  color: #ffcc00;
+  text-shadow: 0 0 8px rgba(255, 204, 0, 0.3);
+}
+
+.tasksCell {
+  color: #00db00;
+}
+
+.activityCell {
+  color: #aaa;
+  font-style: italic;
+}
+
+@media (max-width: 850px) {
+  .pageContainer {
+    width: 95%;
+    padding: 15px;
+  }
+}
+
+@media (max-width: 768px) {
+  .pageHeader {
+    font-size: 18px !important;
+    padding: 0 40px;
+  }
+}
+
+@media (max-width: 480px) {
+  .pageContainer {
+    padding: 10px;
+  }
+
+  .pageHeader {
+    font-size: 16px !important;
+    letter-spacing: 1px;
+  }
+
+  .ratingTable :global(.ant-table-thead > tr > th),
+  .ratingTable :global(.ant-table-tbody > tr > td) {
+    padding: 8px 4px;
+    font-size: 12px;
+  }
+}

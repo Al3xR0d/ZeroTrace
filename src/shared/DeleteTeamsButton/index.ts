@@ -1,0 +1,1 @@
+export { DeleteTeamsButton } from './DeleteTeamsButton';

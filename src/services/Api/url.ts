@@ -1,0 +1,10 @@
+export const USER_REGISTRATION_URL = '/auth/register';
+export const USER_LOGIN_URL = '/auth/login';
+export const USER_URL = '/users';
+export const TEAM_URL = '/teams';
+export const CHALLENGES_URL = '/challenges';
+export const ADMIN_URL = '/admin';
+export const ADMIN_CHALLENGES_URL = '/admin/challenges';
+export const ADMIN_STATISTICS_URL = '/admin/statistics';
+export const ADMIN_TEAMS_URL = '/admin/teams';
+export const ADMIN_USERS_URL = '/admin/users';

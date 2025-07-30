@@ -1,0 +1,12 @@
+body,
+html,
+body *:not(i.fas, i.fab, i.far, i.fa) {
+  font-family: 'JetBrains Mono', monospace;
+}
+
+i.fas,
+i.fab,
+i.far,
+i.fa {
+  font-family: 'JetBrains Mono', monospace;
+}

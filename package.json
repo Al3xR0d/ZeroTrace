@@ -1,0 +1,53 @@
+{
+  "name": "ctfd",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "lint": "eslint .",
+    "preview": "vite preview",
+    "format": "prettier --write .",
+    "lint:format": "prettier --check ."
+  },
+  "dependencies": {
+    "@ant-design/icons": "^5.6.1",
+    "@fortawesome/fontawesome-free": "^6.7.2",
+    "@tanstack/react-query": "^5.82.0",
+    "@types/antd": "^1.0.4",
+    "@types/axios": "^0.14.4",
+    "@types/node": "^24.0.13",
+    "antd": "^5.26.4",
+    "axios": "^1.10.0",
+    "date-fns": "^4.1.0",
+    "date-fns-tz": "^3.2.0",
+    "moment": "^2.30.1",
+    "moment-timezone": "^0.6.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^7.6.3",
+    "styled-components": "^6.1.19",
+    "vite-tsconfig-paths": "^5.1.4",
+    "zustand": "^5.0.6"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.30.1",
+    "@types/moment": "^2.11.29",
+    "@types/moment-timezone": "^0.5.13",
+    "@types/react": "^19.1.8",
+    "@types/react-dom": "^19.1.6",
+    "@vitejs/plugin-react": "^4.6.0",
+    "eslint": "^9.30.1",
+    "eslint-config-prettier": "^10.1.5",
+    "eslint-plugin-prettier": "^5.5.1",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "eslint-plugin-react-refresh": "^0.4.20",
+    "globals": "^16.3.0",
+    "prettier": "^3.6.2",
+    "typescript": "~5.8.3",
+    "typescript-eslint": "^8.36.0",
+    "vite": "^6.3.5"
+  }
+}

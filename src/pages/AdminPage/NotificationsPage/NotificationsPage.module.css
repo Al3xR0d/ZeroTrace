@@ -1,0 +1,27 @@
+.pageContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.radioAndCheckbox {
+  display: flex;
+  justify-content: space-between;
+}
+
+.radioContainer {
+  gap: 10px;
+  display: flex;
+  flex-direction: column;
+}
+
+.checkboxContainer {
+  gap: 10px;
+  display: flex;
+  flex-direction: column;
+}
+
+.submitButton {
+  margin-top: 16px;
+  float: right;
+}

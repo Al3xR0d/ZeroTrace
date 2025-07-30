@@ -1,0 +1,1 @@
+export { NoTeamCard } from './NoTeamCard';

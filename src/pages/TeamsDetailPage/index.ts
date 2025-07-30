@@ -1,0 +1,1 @@
+export { TeamsDetailPage } from './TeamsDetailPage';
