@@ -174,7 +174,7 @@ export const CtfTimes: React.FC = () => {
             <Checkbox>View After CTF</Checkbox>
           </Form.Item>
           <DescriptionText
-            text="Allows challenges to be viewed after the End Time, however no new submissions will be
+            children="Allows challenges to be viewed after the End Time, however no new submissions will be
             recorded. For participants to be able to submit after End Time but not alter the
             scoreboard, configure Freeze Time to be your End Time."
           />

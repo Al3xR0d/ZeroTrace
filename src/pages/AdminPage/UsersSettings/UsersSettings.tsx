@@ -3,12 +3,13 @@ import { Tag, Button, Space } from 'antd';
 import { EditOutlined } from '@ant-design/icons';
 import { useFetchAllUsersAdmin } from '@/hooks/useQueries';
 import { AllUsers } from '@/types';
-import { DeleteUserButton } from '@/shared/DeleteUserButton';
 import { EditUserModal } from '@/components/Modal/EditUserModal';
 import { TableSettings } from '@/shared/TableSettings';
 import type { ColumnsType } from 'antd/lib/table';
 import type { DefaultOptionType } from 'antd/lib/select';
 import { CreateUserModal } from '@/components/Modal/CreateUserModal';
+import { DeleteButton } from '@/shared/DeleteButton';
+import { useDeleteUser } from '@/hooks/useQueries';
 
 export const UsersSettings: React.FC = () => {
   const [pageSize, setPageSize] = useState<number>(
@@ -78,7 +79,8 @@ export const UsersSettings: React.FC = () => {
               setEditUserOpen(true);
             }}
           />
-          <DeleteUserButton id={record.id} name={record.name} />
+          {/* <DeleteUserButton id={record.id} name={record.name} /> */}
+          <DeleteButton id={record.id} name={record.name} useDelete={useDeleteUser} />
         </Space>
       ),
     },

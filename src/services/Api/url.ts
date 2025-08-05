@@ -8,3 +8,4 @@ export const ADMIN_CHALLENGES_URL = '/admin/challenges';
 export const ADMIN_STATISTICS_URL = '/admin/statistics';
 export const ADMIN_TEAMS_URL = '/admin/teams';
 export const ADMIN_USERS_URL = '/admin/users';
+export const NOTIFICATION_URL = '/admin/notifications';

@@ -20,6 +20,9 @@ export const LoginPage: React.FC = () => {
   const loginMutation = useLogin();
   const { refetch: refetchCurrentUser } = useCurrentUser();
 
+  const currentUser = useUserStore((store) => store.currentUser);
+  const isAuthenticated = !!currentUser?.name;
+
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setEmail(value);
@@ -61,7 +64,9 @@ export const LoginPage: React.FC = () => {
       return;
     }
     try {
-      await loginMutation.mutateAsync({ email, password });
+      const response = await loginMutation.mutateAsync({ email, password });
+      // localStorage.setItem('token', response.access_token);
+      // document.cookie = `duck=${response.access_token}; Path=/; SameSite=Strict`;
       await refetchCurrentUser();
       navigate('/menu');
     } catch (error) {
@@ -72,6 +77,12 @@ export const LoginPage: React.FC = () => {
       }
     }
   };
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/menu', { replace: true });
+    }
+  }, [isAuthenticated, navigate]);
 
   return (
     <>

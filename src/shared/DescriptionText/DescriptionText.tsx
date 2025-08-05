@@ -3,15 +3,9 @@ import styles from './DescriptionText.module.css';
 import { Typography } from 'antd';
 
 interface Props {
-  text: string;
+  children: React.ReactNode;
 }
 
-const { Text } = Typography;
-
-export const DescriptionText: React.FC<Props> = ({ text }) => {
-  return (
-    <>
-      <Text className={styles.text}>{text}</Text>
-    </>
-  );
+export const DescriptionText: React.FC<Props> = ({ children }) => {
+  return <Typography.Text className={styles.text}>{children}</Typography.Text>;
 };

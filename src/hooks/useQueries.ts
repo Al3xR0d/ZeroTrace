@@ -5,9 +5,20 @@ import {
   useQueryClient,
   QueryClient,
   QueryClientContext,
+  QueryKey,
 } from '@tanstack/react-query';
 import { useUserStore } from '@/store/userStore';
-import { User, Team, TeamById, AllUsers, UserUpdateData, TeamUpdateData } from '@/types';
+import { useNotificationStore } from '@/store/notificationsStore';
+import {
+  User,
+  Team,
+  TeamById,
+  AllUsers,
+  UserUpdateData,
+  TeamUpdateData,
+  Challenge,
+  ServerNotification,
+} from '@/types';
 import {
   login,
   fetchCurrentUser,
@@ -22,6 +33,11 @@ import {
   fetchTeamsAdmin,
   createTeam,
   createUser,
+  createNotification,
+  fetchAllChallengesAdmin,
+  deleteChallenge,
+  updateChallenge,
+  createChallenge,
 } from '@/services/Api/fetches';
 import { message, notification } from 'antd';
 import { error } from 'console';
@@ -51,16 +67,32 @@ interface TeamDeleteMutationContext {
   previousTeams: Team[];
 }
 
+interface ChallengeDeleteMutationContext {
+  previousChallenges: [queryKey: QueryKey, data: Challenge[] | undefined][];
+}
+
+interface ChallengerMutationContext {
+  previousChallenges: [queryKey: QueryKey, data: Challenge[] | undefined][];
+  previousChallenge: [queryKey: QueryKey, data: Challenge | undefined][];
+}
+
+interface Notification {
+  id: number;
+  title: string;
+  content: string;
+  date: string;
+}
+
 export const useLogin = () => {
   const qc = useQueryClient();
 
   return useMutation({
     mutationFn: login,
-    onSuccess: (data) => {
-      const token = data.access_token;
-      if (token) {
-        localStorage.setItem('token', token);
-      }
+    onSuccess: () => {
+      // const token = data.access_token;
+      // if (token) {
+      //   localStorage.setItem('token', token);
+      // }
       qc.invalidateQueries({ queryKey: ['currentUser'] });
     },
   });
@@ -68,20 +100,21 @@ export const useLogin = () => {
 
 export const useCurrentUser = () => {
   const setCurrentUser = useUserStore((store) => store.setCurrentUser);
-  const token = localStorage.getItem('token');
+  // const token = localStorage.getItem('token');
 
   const query = useQuery<User>({
     queryKey: ['currentUser'],
     queryFn: fetchCurrentUser,
     enabled: false,
+    staleTime: 0,
     ...defaultQueryOptions,
   });
 
-  useEffect(() => {
-    if (token && !query.data) {
-      query.refetch();
-    }
-  }, [token]);
+  // useEffect(() => {
+  //   if (token && !query.data) {
+  //     query.refetch();
+  //   }
+  // }, [token]);
 
   useEffect(() => {
     if (query.data) {
@@ -354,6 +387,185 @@ export const useCreateUser = () => {
     onError: (error) => {
       notification.error({
         message: 'User creation error',
+        description: error.message,
+        placement: 'topRight',
+      });
+    },
+  });
+};
+
+export const useNotificationsSSE = () => {
+  const addNotification = useNotificationStore((s) => s.addNotification);
+
+  // получаем массив уже сохранённых ID (реактивность не нужна)
+  const existingIds = useNotificationStore.getState().notifications.map((n) => n.id);
+
+  useEffect(() => {
+    const es = new EventSource('https://10.67.0.89:7443/api/v1/sse/notifications', {
+      withCredentials: true,
+    });
+
+    es.addEventListener('notification', (evt) => {
+      try {
+        const data = JSON.parse(evt.data);
+        if (!existingIds.includes(data.id)) {
+          addNotification(data);
+        }
+      } catch (e) {
+        console.error('SSE parse error', e);
+      }
+    });
+
+    es.addEventListener('error', () => es.close());
+    return () => es.close();
+  }, [addNotification, existingIds]);
+};
+
+export const useCreateNotification = () => {
+  const qc = useQueryClient();
+
+  return useMutation({
+    mutationFn: createNotification,
+    onSuccess: () => {
+      notification.success({
+        message: 'Notification has been created',
+        placement: 'topRight',
+      });
+      qc.invalidateQueries({ queryKey: ['notifications'] });
+    },
+    onError: (error) => {
+      notification.error({
+        message: 'Notification creation error',
+        description: error.message,
+        placement: 'topRight',
+      });
+    },
+  });
+};
+
+export const useFetchAllChallengesAdmin = () =>
+  useQuery<Challenge[]>({
+    queryKey: ['challenges'],
+    queryFn: fetchAllChallengesAdmin,
+    ...defaultQueryOptions,
+  });
+
+export const useDeleteChallenge = (id: number) => {
+  const qc = useQueryClient();
+
+  return useMutation<void, Error, void, ChallengeDeleteMutationContext>({
+    mutationFn: () => deleteChallenge(id),
+
+    onMutate: async () => {
+      await qc.cancelQueries({ queryKey: ['challenges'] });
+
+      const previousChallenges = qc.getQueriesData<Challenge[]>({ queryKey: ['challenges'] });
+
+      qc.setQueriesData<Challenge[]>({ queryKey: ['challenges'] }, (old = []) =>
+        old.filter((challenge) => challenge.id !== id),
+      );
+
+      return { previousChallenges };
+    },
+
+    onError: (_, __, context) => {
+      if (!context?.previousChallenges) return;
+
+      context.previousChallenges.forEach(([queryKey, data]) => {
+        qc.setQueryData(queryKey, data);
+      });
+    },
+
+    onSettled: () => {
+      qc.invalidateQueries({ queryKey: ['challenges'] });
+    },
+  });
+};
+
+export const useUpdateChallenge = (id: number) => {
+  const queryClient = useQueryClient();
+
+  return useMutation<Challenge, Error, Challenge, ChallengerMutationContext>({
+    mutationFn: (updateData) => updateChallenge(id, updateData),
+    onMutate: async (newData) => {
+      await queryClient.cancelQueries({ queryKey: ['challenges'] });
+      await queryClient.cancelQueries({ queryKey: ['challenges', id] });
+
+      const previousChallenges = queryClient.getQueriesData<Challenge[]>({
+        queryKey: ['challenges'],
+      });
+      const previousChallenge = queryClient.getQueriesData<Challenge>({
+        queryKey: ['challenge', id],
+      });
+
+      queryClient.setQueryData(['challenge', id], (old: Challenge | undefined) =>
+        old ? { ...old, ...newData } : undefined,
+      );
+
+      queryClient.setQueryData(['challenges'], (old: Challenge[] | undefined) =>
+        old?.map((challenge) => (challenge.id === id ? { ...challenge, ...newData } : challenge)),
+      );
+
+      return { previousChallenges, previousChallenge };
+    },
+
+    onSuccess: (updateChallenge) => {
+      queryClient.setQueryData(['challenge', id], updateChallenge);
+
+      queryClient.setQueryData(['challenges'], (old: Challenge[] | undefined) =>
+        old?.map((challenge) =>
+          challenge.id === id ? { ...challenge, ...updateChallenge } : challenge,
+        ),
+      );
+
+      notification.success({
+        message: 'Challenge updated successfully',
+        description: `Changes to ${updateChallenge.name} have been saved`,
+        placement: 'topRight',
+      });
+    },
+
+    onError: (error, _, context) => {
+      if (context?.previousChallenges) {
+        queryClient.setQueryData(['challenges'], context.previousChallenges);
+      }
+      if (context?.previousChallenge) {
+        queryClient.setQueryData(['challenge', id], context.previousChallenge);
+      }
+
+      notification.error({
+        message: 'Update failed',
+        description: error.message || 'Failed to update challenge data',
+        placement: 'topRight',
+      });
+    },
+
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['challenges'] });
+      queryClient.invalidateQueries({ queryKey: ['challenge', id] });
+    },
+
+    retry: 1,
+    retryDelay: 1000,
+  });
+};
+
+export const useCreateChallenge = () => {
+  const qc = useQueryClient();
+
+  return useMutation({
+    mutationFn: createChallenge,
+    onSuccess: (createdChallenge) => {
+      notification.success({
+        message: 'Challenge has been created',
+        description: `Challenge ${createdChallenge.name} has been added`,
+        placement: 'topRight',
+      });
+      qc.invalidateQueries({ queryKey: ['challenges'] });
+    },
+    onError: (error) => {
+      notification.error({
+        message: 'Challenge creation error',
         description: error.message,
         placement: 'topRight',
       });

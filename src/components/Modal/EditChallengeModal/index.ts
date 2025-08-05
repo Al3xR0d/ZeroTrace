@@ -1,0 +1,1 @@
+export { EditChallengeModal } from './EditChallengeModal';

@@ -1,0 +1,12 @@
+.modalContainer {
+  min-width: 700px;
+  top: 10px;
+}
+
+.inputNumber {
+  width: auto;
+}
+
+.attentionText {
+  color: tomato;
+}

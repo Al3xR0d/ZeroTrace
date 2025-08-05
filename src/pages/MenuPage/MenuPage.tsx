@@ -1,43 +1,67 @@
-import React from 'react';
-import { Button, Flex, Switch } from 'antd';
+import React, { useEffect, useState } from 'react';
+import { Button, Flex, Switch, Badge } from 'antd';
 import styles from './MenuPage.module.css';
-import { UserOutlined } from '@ant-design/icons';
+import { UserOutlined, AudioOutlined, AudioMutedOutlined, BellOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { useUserStore } from '@/store/userStore';
 import { useQueryClient } from '@tanstack/react-query';
-import { AudioOutlined, AudioMutedOutlined } from '@ant-design/icons';
 import { useAudioStore } from '@/store/audioStore';
+import { useNotificationsSSE } from '@/hooks/useQueries';
+import { useNotificationStore } from '@/store/notificationsStore';
+import { NotificationModal } from '@/components/Modal/NotificationModal';
 
 export const MenuPage: React.FC = () => {
   const navigate = useNavigate();
-  const isAuthenticated = !!localStorage.getItem('token');
   const queryClient = useQueryClient();
+  const { notifications, unreadCount, markAsRead, clearAll } = useNotificationStore();
+  const [isModalOpen, setModalOpen] = useState(false);
 
+  const clearUser = useUserStore((store) => store.clearUser);
   const currentUser = useUserStore((store) => store.currentUser);
+  const isAuthenticated = !!currentUser?.name;
   const { enabled, setEnabled } = useAudioStore();
+
+  useNotificationsSSE();
 
   const handleProfileClick = () => {
     navigate('/login');
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    queryClient.removeQueries({ queryKey: ['currentUser'] });
-    useUserStore.persist.clearStorage();
-    useUserStore.getState().clearUser();
+  const handleLogout = async () => {
+    clearUser();
+    queryClient.removeQueries();
+    await useUserStore.persist.clearStorage();
+    document.cookie = 'duck=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+    // useNotificationStore.getState().clearAll();
+    // await useNotificationStore.persist.clearStorage();
     navigate('/menu', { replace: true });
   };
 
+  useEffect(() => {
+    if (!isAuthenticated) {
+      navigate('/menu', { replace: true });
+    }
+  }, [isAuthenticated, navigate]);
+
   return (
     <div className={styles.pageContainer}>
-      <div
-        className={`${styles.profileContainer} ${isAuthenticated ? styles.noHover : ''}`}
-        onClick={handleProfileClick}
-      >
-        <UserOutlined className={styles.profileIcon} />
-        <span className={styles.profileText}>
-          {isAuthenticated ? currentUser?.name : 'Profile'}
-        </span>
+      <div className={styles.profileWrapper}>
+        <div
+          className={`${styles.profileContainer} ${isAuthenticated ? styles.noHover : ''}`}
+          onClick={handleProfileClick}
+        >
+          <UserOutlined className={styles.profileIcon} />
+          <span className={styles.profileText}>
+            {isAuthenticated ? currentUser?.name : 'Profile'}
+          </span>
+        </div>
+        {isAuthenticated && unreadCount > 0 && (
+          <div className={styles.bellWrapper} onClick={() => setModalOpen(true)}>
+            <Badge count={unreadCount} size="small" overflowCount={99}>
+              <BellOutlined className={styles.bellIcon} />
+            </Badge>
+          </div>
+        )}
       </div>
       <Flex gap="large" vertical className={styles.menu}>
         {isAuthenticated && (
@@ -73,6 +97,8 @@ export const MenuPage: React.FC = () => {
           </>
         )}
       </Flex>
+
+      {isModalOpen && <NotificationModal open={isModalOpen} onCancel={() => setModalOpen(false)} />}
     </div>
   );
 };

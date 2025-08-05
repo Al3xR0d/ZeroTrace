@@ -18,25 +18,17 @@ class Api {
       headers: {
         'Content-Type': 'application/json',
       },
+      withCredentials: true,
     });
 
     this.setupInterceptors();
   }
-
   private setupInterceptors() {
-    this.api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
-      const token = localStorage.getItem('token');
-      if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-      }
-      return config;
-    });
-
     this.api.interceptors.response.use(
       (response: AxiosResponse) => response,
       (error: AxiosError) => {
         if (error.response?.status === 401 && !window.location.pathname.includes('/login')) {
-          localStorage.removeItem('token');
+          // localStorage.removeItem('token');
           this.navigate?.('/login', { replace: true });
         }
         return Promise.reject(error);

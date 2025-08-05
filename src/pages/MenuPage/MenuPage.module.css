@@ -3,15 +3,21 @@
   padding: 20px;
 }
 
-.profileContainer {
+.profileWrapper {
   position: fixed;
   top: 20px;
   left: 20px;
   display: flex;
   align-items: center;
   gap: 8px;
-  cursor: pointer;
   z-index: 1000;
+}
+
+.profileContainer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
   color: #eef3ff;
   transition:
     opacity 0.3s,
@@ -19,8 +25,6 @@
 }
 
 .profileContainer:hover {
-  /* opacity: 0.8; */
-  /* color: #e0e0ff; */
   transform: scale(1.05);
 }
 
@@ -33,6 +37,30 @@
   font-size: 16px;
   font-weight: 500;
   user-select: none;
+}
+
+.noHover {
+  pointer-events: none;
+  cursor: default;
+  transform: none;
+}
+
+.bellWrapper {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+.bellIcon {
+  font-size: 24px;
+  color: #eef3ff;
+  transition:
+    transform 0.3s,
+    color 0.3s;
+}
+
+.bellWrapper:hover .bellIcon {
+  transform: scale(1.1);
 }
 
 .menu {
@@ -62,18 +90,10 @@
 
 .menu :global(.ant-btn.custom-btn:hover),
 .menu :global(.ant-btn.custom-btn:active) {
-  /* background-color: #00bfff;
-  box-shadow: 0 0 10px #00bfff; */
   background-color: #00db00;
   box-shadow: 0 0 10px #00db00;
-  color: #eef3ff;
+  color: #212121;
   transform: scale(1.15);
-}
-
-.noHover {
-  pointer-events: none;
-  cursor: default;
-  transform: none;
 }
 
 .audioToggle :global(.ant-switch-checked) {

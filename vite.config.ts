@@ -8,12 +8,12 @@ export default defineConfig({
     include: ['antd'],
   },
   server: {
-    cors: true,
+    // cors: true,
     proxy: {
       '/api': {
-        target: process.env?.VITE_BACKEND_API || import.meta.env?.VITE_BACKEND_API,
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, ''),
+        target: 'http://10.67.0.89:8888', // адрес твоего бэка в облаке
+        changeOrigin: true, // меняет Host на target
+        secure: false, // если бэк по HTTP
       },
     },
   },

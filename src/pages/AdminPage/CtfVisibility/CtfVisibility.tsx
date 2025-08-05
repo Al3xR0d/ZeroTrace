@@ -19,7 +19,7 @@ export const CtfVisibility: React.FC = () => {
             { value: 'admins', label: 'Admins only' },
           ]}
         />
-        <DescriptionText text="Control whether users must be logged in to see challenges" />
+        <DescriptionText children="Control whether users must be logged in to see challenges" />
         <Text>Account Visibility</Text>
         <Select
           defaultValue="public"
@@ -31,7 +31,7 @@ export const CtfVisibility: React.FC = () => {
           ]}
         />
         <DescriptionText
-          text="Control whether accounts (users & teams) are shown to everyone, only to authenticated
+          children="Control whether accounts (users & teams) are shown to everyone, only to authenticated
           users, or only to admins"
         />
         <Text>Score Visibility</Text>
@@ -45,13 +45,14 @@ export const CtfVisibility: React.FC = () => {
             { value: 'hidden', label: 'Hidden' },
           ]}
         />
-        <DescriptionText
-          text="Control whether solves/score are shown to the public, to logged in users, hidden to all
+        <DescriptionText>
+          Control whether solves/score are shown to the public, to logged in users, hidden to all
           non-admins, or only shown to admins.
+          <br />
           Score Visibility is a subset of Account Visibility. This means that if accounts are
           visible to a user then score visibility will control whether they can see the score of
-          that user. If accounts are not visibile then score visibility has no effect."
-        />
+          that user. If accounts are not visibile then score visibility has no effect.
+        </DescriptionText>
         <Text>Registration Visibility</Text>
         <Select
           defaultValue="private"
@@ -62,7 +63,7 @@ export const CtfVisibility: React.FC = () => {
             { value: 'majorLeague', label: 'MajorLeagueCyber only' },
           ]}
         />
-        <DescriptionText text="Control whether registration is enabled for everyone or disabled" />
+        <DescriptionText children="Control whether registration is enabled for everyone or disabled" />
       </div>
       <Button type="primary" className={styles.updateButton}>
         Update

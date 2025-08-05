@@ -32,6 +32,10 @@ const items: MenuProps['items'] = [
     label: 'Notifications',
     key: 'notifications',
   },
+  {
+    label: 'Challenges',
+    key: 'challenges',
+  },
 ];
 
 export const AdminLayout: React.FC = () => {

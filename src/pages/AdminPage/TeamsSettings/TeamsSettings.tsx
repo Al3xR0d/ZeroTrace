@@ -3,12 +3,13 @@ import { Tag, Button, Space } from 'antd';
 import { EditOutlined } from '@ant-design/icons';
 import { useFetchTeamsAdmin } from '@/hooks/useQueries';
 import { Team } from '@/types';
-import { DeleteTeamsButton } from '@/shared/DeleteTeamsButton';
 import { EditTeamModal } from '@/components/Modal/EditTeamModal';
 import { TableSettings } from '@/shared/TableSettings';
 import type { ColumnsType } from 'antd/lib/table';
 import type { DefaultOptionType } from 'antd/lib/select';
 import { CreateTeamModal } from '@/components/Modal/CreateTeamModal';
+import { DeleteButton } from '@/shared/DeleteButton';
+import { useDeleteTeam } from '@/hooks/useQueries';
 
 export const TeamsSettings: React.FC = () => {
   const [pageSize, setPageSize] = useState<number>(
@@ -72,7 +73,7 @@ export const TeamsSettings: React.FC = () => {
               setEditTeamOpen(true);
             }}
           />
-          <DeleteTeamsButton id={record.id} name={record.name} />
+          <DeleteButton id={record.id} name={record.name} useDelete={useDeleteTeam} />
         </Space>
       ),
     },
