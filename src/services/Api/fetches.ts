@@ -121,9 +121,9 @@ export const createChallenge = ({
   type?: string;
   start: string;
   end: string;
-  freeze: boolean;
+  freeze?: boolean;
 }) =>
-  api.POST(ADMIN_USERS_URL, {
+  api.POST(ADMIN_CHALLENGES_URL, {
     name,
     description,
     value,

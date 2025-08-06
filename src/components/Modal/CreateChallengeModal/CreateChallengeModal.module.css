@@ -10,3 +10,7 @@
 .attentionText {
   color: tomato;
 }
+
+.fullWidth {
+  width: 100%;
+}
