@@ -12,3 +12,18 @@ export interface Challenge {
   end: string;
   freeze: boolean;
 }
+
+export type CreateChallenge = {
+  name: string;
+  description: string;
+  value: number;
+  start: string;
+  end: string;
+} & Partial<Pick<Challenge, 'category_id' | 'state' | 'max_attempts' | 'type' | 'freeze'>>;
+
+export interface CreateFlag {
+  challenge_id: number;
+  type: string;
+  content: string;
+  data?: string;
+}

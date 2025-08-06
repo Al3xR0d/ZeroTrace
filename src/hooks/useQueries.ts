@@ -17,7 +17,7 @@ import {
   UserUpdateData,
   TeamUpdateData,
   Challenge,
-  ServerNotification,
+  CreateFlag,
 } from '@/types';
 import {
   login,
@@ -38,6 +38,7 @@ import {
   deleteChallenge,
   updateChallenge,
   createChallenge,
+  createFlag,
 } from '@/services/Api/fetches';
 import { message, notification } from 'antd';
 import { error } from 'console';
@@ -396,8 +397,6 @@ export const useCreateUser = () => {
 
 export const useNotificationsSSE = () => {
   const addNotification = useNotificationStore((s) => s.addNotification);
-
-  // получаем массив уже сохранённых ID (реактивность не нужна)
   const existingIds = useNotificationStore.getState().notifications.map((n) => n.id);
 
   useEffect(() => {
@@ -570,5 +569,25 @@ export const useCreateChallenge = () => {
         placement: 'topRight',
       });
     },
+  });
+};
+
+export const useCreateFlag = () => {
+  const qc = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ data, id }: { data: CreateFlag; id: number }) => createFlag(data, id),
+    onSuccess: (createdChallenge) => {
+      notification.success({
+        message: 'Flag created',
+        description: `Flag created.`,
+      });
+      qc.invalidateQueries({ queryKey: ['flags', createdChallenge.id] });
+    },
+    onError: (err: any) =>
+      notification.error({
+        message: 'Flag creation error',
+        description: err.message,
+      }),
   });
 };

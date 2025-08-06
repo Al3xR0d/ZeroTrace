@@ -10,13 +10,15 @@ import {
   Checkbox,
   Upload,
   Button,
+  notification,
 } from 'antd';
 import TabPane from 'antd/es/tabs/TabPane';
 import { DescriptionText } from '@/shared/DescriptionText';
 import styles from './CreateChallengeModal.module.css';
 import { categoryOptions, categoriesMap } from '@/lib/categories';
 import { UploadOutlined } from '@ant-design/icons';
-import { useCreateChallenge } from '@/hooks/useQueries';
+import { useCreateChallenge, useCreateFlag } from '@/hooks/useQueries';
+import { useQueryClient } from '@tanstack/react-query';
 
 interface Props {
   open: boolean;
@@ -27,6 +29,7 @@ interface Props {
 const { TextArea } = Input;
 
 export const CreateChallengeModal: React.FC<Props> = ({ open, onCancel, onSuccess }) => {
+  const qc = useQueryClient();
   const [needToUpload, setNeedToUpload] = useState<boolean>(false);
   const [name, setName] = useState<string>('');
   const [description, setDescription] = useState<string>('');
@@ -38,6 +41,8 @@ export const CreateChallengeModal: React.FC<Props> = ({ open, onCancel, onSucces
   const [maxAttempts, setMaxAttempts] = useState<number | null>(null);
   const [state, setState] = useState<string | null>(null);
   const [category, setCategory] = useState<number | null>(null);
+  const [flagContent, setFlagContent] = useState('');
+  const [flagData, setFlagData] = useState<string>('');
 
   useEffect(() => {
     if (open) {
@@ -51,23 +56,18 @@ export const CreateChallengeModal: React.FC<Props> = ({ open, onCancel, onSucces
       setMaxAttempts(null);
       setState(null);
       setCategory(null);
+      setFlagContent('');
+      setFlagData('');
     }
   }, [open, type]);
 
   const createChallengeMutation = useCreateChallenge();
+  const createFlagMutation = useCreateFlag();
 
   const handleCreate = () => {
     if (!category || !value) return;
 
-    const payload: {
-      name: string;
-      description: string;
-      value: number;
-      start: string;
-      end: string;
-      type: string;
-      category_id: number;
-    } & Partial<{ max_attempts: number; freeze: boolean; state: string }> = {
+    const challengePayload: any = {
       name,
       description,
       value,
@@ -76,31 +76,49 @@ export const CreateChallengeModal: React.FC<Props> = ({ open, onCancel, onSucces
       type,
       category_id: category,
     };
-    console.log(payload);
-    if (typeof maxAttempts === 'number' && maxAttempts > 0) {
-      payload.max_attempts = maxAttempts;
-    }
-    if (freeze !== null) {
-      payload.freeze = freeze;
-    }
-    if (state !== null) {
-      payload.state = state;
-    }
+    if (maxAttempts && maxAttempts > 0) challengePayload.max_attempts = maxAttempts;
+    if (freeze !== null) challengePayload.freeze = freeze;
+    if (state) challengePayload.state = state;
 
-    createChallengeMutation.mutate(payload, {
-      onSuccess: onSuccess,
+    createChallengeMutation.mutate(challengePayload, {
+      onSuccess: (createdChallenge) => {
+        if (flagContent.trim()) {
+          const flagPayload: any = {
+            challenge_id: createdChallenge.id,
+            type,
+            content: flagContent,
+          };
+          if (flagData.trim()) flagPayload.data = flagData;
+
+          createFlagMutation.mutate(
+            { data: flagPayload, id: createdChallenge.id },
+            {
+              onSuccess: () => {
+                // notification.success({
+                //   message: 'Flag created',
+                //   description: `Flag for "${createdChallenge.name}" created.`,
+                // });
+                // qc.invalidateQueries({ queryKey: ['flags', createdChallenge.id] });
+                onSuccess();
+              },
+              // onError: (err: any) =>
+              //   notification.error({
+              //     message: 'Flag creation error',
+              //     description: err.message,
+              //   }),
+            },
+          );
+        } else {
+          onSuccess();
+        }
+      },
+      onError: (err: any) => {
+        notification.error({
+          message: 'Challenge creation error',
+          description: err.message,
+        });
+      },
     });
-
-    setName('');
-    setDescription('');
-    setValue(null);
-    setStart('');
-    setEnd('');
-    setFreeze(null);
-    setType('standard');
-    setMaxAttempts(null);
-    setState(null);
-    setCategory(null);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -215,7 +233,11 @@ export const CreateChallengeModal: React.FC<Props> = ({ open, onCancel, onSucces
                 ]}
                 value={freeze}
               />
-              <Input placeholder="Flag" />
+              <Input
+                placeholder="Flag"
+                value={flagContent}
+                onChange={(e) => setFlagContent(e.target.value)}
+              />
               <DescriptionText children="Static flag for your challenge" />
               <Checkbox onChange={(e) => setNeedToUpload(e.target.checked)}>
                 Need to upload files
