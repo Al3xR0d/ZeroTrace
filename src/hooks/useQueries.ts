@@ -39,6 +39,8 @@ import {
   updateChallenge,
   createChallenge,
   createFlag,
+  uploadChallengeFile,
+  fetchCurrentChallenge,
 } from '@/services/Api/fetches';
 import { message, notification } from 'antd';
 import { error } from 'console';
@@ -90,10 +92,6 @@ export const useLogin = () => {
   return useMutation({
     mutationFn: login,
     onSuccess: () => {
-      // const token = data.access_token;
-      // if (token) {
-      //   localStorage.setItem('token', token);
-      // }
       qc.invalidateQueries({ queryKey: ['currentUser'] });
     },
   });
@@ -101,7 +99,6 @@ export const useLogin = () => {
 
 export const useCurrentUser = () => {
   const setCurrentUser = useUserStore((store) => store.setCurrentUser);
-  // const token = localStorage.getItem('token');
 
   const query = useQuery<User>({
     queryKey: ['currentUser'],
@@ -110,12 +107,6 @@ export const useCurrentUser = () => {
     staleTime: 0,
     ...defaultQueryOptions,
   });
-
-  // useEffect(() => {
-  //   if (token && !query.data) {
-  //     query.refetch();
-  //   }
-  // }, [token]);
 
   useEffect(() => {
     if (query.data) {
@@ -589,5 +580,21 @@ export const useCreateFlag = () => {
         message: 'Flag creation error',
         description: err.message,
       }),
+  });
+};
+
+export const useUploadChallengeFile = () => {
+  return useMutation({
+    mutationFn: ({ id, file, type }: { id: number; file: File; type: string }) =>
+      uploadChallengeFile(id, file, type),
+  });
+};
+
+export const useFetchCurrentChallenge = (id: number) => {
+  return useQuery<Challenge>({
+    queryKey: ['challenge', id],
+    queryFn: () => fetchCurrentChallenge(id),
+    enabled: !!id,
+    ...defaultQueryOptions,
   });
 };

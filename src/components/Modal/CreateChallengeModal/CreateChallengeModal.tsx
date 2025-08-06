@@ -12,12 +12,13 @@ import {
   Button,
   notification,
 } from 'antd';
+import type { UploadFile } from 'antd';
 import TabPane from 'antd/es/tabs/TabPane';
 import { DescriptionText } from '@/shared/DescriptionText';
 import styles from './CreateChallengeModal.module.css';
-import { categoryOptions, categoriesMap } from '@/lib/categories';
+import { categoryOptions } from '@/lib/categories';
 import { UploadOutlined } from '@ant-design/icons';
-import { useCreateChallenge, useCreateFlag } from '@/hooks/useQueries';
+import { useCreateChallenge, useCreateFlag, useUploadChallengeFile } from '@/hooks/useQueries';
 import { useQueryClient } from '@tanstack/react-query';
 
 interface Props {
@@ -43,6 +44,7 @@ export const CreateChallengeModal: React.FC<Props> = ({ open, onCancel, onSucces
   const [category, setCategory] = useState<number | null>(null);
   const [flagContent, setFlagContent] = useState('');
   const [flagData, setFlagData] = useState<string>('');
+  const [fileList, setFileList] = useState<UploadFile[]>([]);
 
   useEffect(() => {
     if (open) {
@@ -58,67 +60,69 @@ export const CreateChallengeModal: React.FC<Props> = ({ open, onCancel, onSucces
       setCategory(null);
       setFlagContent('');
       setFlagData('');
+      setNeedToUpload(false);
+      setFileList([]);
     }
   }, [open, type]);
 
-  const createChallengeMutation = useCreateChallenge();
-  const createFlagMutation = useCreateFlag();
+  const { mutateAsync: createChallenge } = useCreateChallenge();
+  const { mutateAsync: createFlag } = useCreateFlag();
+  const { mutateAsync: uploadFile } = useUploadChallengeFile();
 
-  const handleCreate = () => {
+  const handleCreate = async () => {
     if (!category || !value) return;
 
-    const challengePayload: any = {
-      name,
-      description,
-      value,
-      start: new Date(start).toISOString(),
-      end: new Date(end).toISOString(),
-      type,
-      category_id: category,
-    };
-    if (maxAttempts && maxAttempts > 0) challengePayload.max_attempts = maxAttempts;
-    if (freeze !== null) challengePayload.freeze = freeze;
-    if (state) challengePayload.state = state;
+    try {
+      const payload: any = {
+        name,
+        description,
+        value,
+        start: new Date(start).toISOString(),
+        end: new Date(end).toISOString(),
+        type,
+        category_id: category,
+      };
+      if (maxAttempts && maxAttempts > 0) payload.max_attempts = maxAttempts;
+      if (freeze !== null) payload.freeze = freeze;
+      if (state) payload.state = state;
 
-    createChallengeMutation.mutate(challengePayload, {
-      onSuccess: (createdChallenge) => {
-        if (flagContent.trim()) {
-          const flagPayload: any = {
-            challenge_id: createdChallenge.id,
-            type,
-            content: flagContent,
-          };
-          if (flagData.trim()) flagPayload.data = flagData;
+      const created = await createChallenge(payload);
+      qc.invalidateQueries({ queryKey: ['challenges'] });
 
-          createFlagMutation.mutate(
-            { data: flagPayload, id: createdChallenge.id },
-            {
-              onSuccess: () => {
-                // notification.success({
-                //   message: 'Flag created',
-                //   description: `Flag for "${createdChallenge.name}" created.`,
-                // });
-                // qc.invalidateQueries({ queryKey: ['flags', createdChallenge.id] });
-                onSuccess();
-              },
-              // onError: (err: any) =>
-              //   notification.error({
-              //     message: 'Flag creation error',
-              //     description: err.message,
-              //   }),
-            },
-          );
-        } else {
-          onSuccess();
-        }
-      },
-      onError: (err: any) => {
-        notification.error({
-          message: 'Challenge creation error',
-          description: err.message,
-        });
-      },
-    });
+      if (flagContent.trim()) {
+        const flagPayload: any = {
+          challenge_id: created.id,
+          type,
+          content: flagContent,
+        };
+        if (flagData.trim()) flagPayload.data = flagData;
+
+        await createFlag({ data: flagPayload, id: created.id });
+        qc.invalidateQueries({ queryKey: ['flags', created.id] });
+      }
+
+      if (needToUpload && fileList.length > 0) {
+        await Promise.all(
+          fileList.map((f) =>
+            uploadFile({ id: created.id, file: f.originFileObj as File, type: 'attachment' }),
+          ),
+        );
+        qc.invalidateQueries({ queryKey: ['files', created.id] });
+        notification.success({ message: 'Files uploaded' });
+      }
+
+      onSuccess();
+    } catch (err: any) {
+      notification.error({ message: 'Error', description: err.message });
+    }
+  };
+
+  const uploadProps = {
+    multiple: true,
+    beforeUpload: () => false,
+    onChange: ({ fileList }: { fileList: UploadFile[] }) => setFileList(fileList),
+    fileList,
+    showUploadList: true,
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -239,12 +243,12 @@ export const CreateChallengeModal: React.FC<Props> = ({ open, onCancel, onSucces
                 onChange={(e) => setFlagContent(e.target.value)}
               />
               <DescriptionText children="Static flag for your challenge" />
-              <Checkbox onChange={(e) => setNeedToUpload(e.target.checked)}>
+              <Checkbox onChange={(e) => setNeedToUpload(e.target.checked)} checked={needToUpload}>
                 Need to upload files
               </Checkbox>
               {needToUpload && (
-                <Upload>
-                  <Button icon={<UploadOutlined />}>Select File</Button>
+                <Upload {...uploadProps}>
+                  <Button icon={<UploadOutlined />}>Select File(s)</Button>
                 </Upload>
               )}
             </Flex>

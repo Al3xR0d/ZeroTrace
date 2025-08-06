@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Tag, Button, Space } from 'antd';
+import { Tag, Button, Space, Typography } from 'antd';
 import { EditOutlined } from '@ant-design/icons';
 import { TableSettings } from '@/shared/TableSettings';
 import type { ColumnsType } from 'antd/lib/table';
@@ -10,6 +10,7 @@ import { DeleteButton } from '@/shared/DeleteButton';
 import { useDeleteChallenge, useFetchAllChallengesAdmin } from '@/hooks/useQueries';
 import { Challenge } from '@/types';
 import { categoriesMap } from '@/lib/categories';
+import { useNavigate } from 'react-router-dom';
 
 export const Challenges: React.FC = () => {
   const [pageSize, setPageSize] = useState<number>(
@@ -24,6 +25,9 @@ export const Challenges: React.FC = () => {
     setEditChallengeOpen(false);
     setEditingChallenge(null);
   };
+
+  const { Link } = Typography;
+  const navigate = useNavigate();
 
   const filterOptions: DefaultOptionType[] = [
     { value: 'name', label: 'Name' },
@@ -42,13 +46,16 @@ export const Challenges: React.FC = () => {
       dataIndex: 'name',
       key: 'name',
       sorter: (a, b) => a.name.localeCompare(b.name),
+      render: (_, record) => (
+        <Link onClick={() => navigate(`/admin/challenges/${record.id}`)}>{record.name}</Link>
+      ),
     },
     {
       title: 'Category',
       dataIndex: 'category_id',
       key: 'category_id',
       render: (category) => categoriesMap.get(category),
-      sorter: (a, b) => a.value - b.value,
+      // sorter: (a, b) => a.value - b.value,
     },
     {
       title: 'Value',

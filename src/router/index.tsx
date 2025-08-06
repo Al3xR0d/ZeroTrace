@@ -19,6 +19,9 @@ const NotificationsPage = lazy(
   () => import('@/pages/AdminPage/NotificationsPage/NotificationsPage'),
 );
 const Challenges = lazy(() => import('@/pages/AdminPage/Challenges/Challenges'));
+const ChallengeDetailPage = lazy(
+  () => import('@/pages/AdminPage/ChallengeDetailPage/ChallengeDetailPage'),
+);
 
 // const token = localStorage.getItem('token');
 
@@ -55,6 +58,7 @@ export const AppRouter: React.FC = () => {
           <Route path="users" element={<UsersSettings />} />
           <Route path="notifications" element={<NotificationsPage />} />
           <Route path="challenges" element={<Challenges />} />
+          <Route path="/admin/challenges/:id" element={<ChallengeDetailPage />} />
         </Route>
         <Route path="*" element={<Navigate to="/menu" replace />} />
       </Routes>

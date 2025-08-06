@@ -80,3 +80,18 @@ export const createChallenge = (data: CreateChallenge) => api.POST(ADMIN_CHALLEN
 
 export const createFlag = (data: CreateFlag, id: number) =>
   api.POST(`${ADMIN_CHALLENGES_URL}/${id}/flags`, data);
+
+export const uploadChallengeFile = (id: number, file: File, type: string) => {
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('type', type);
+  formData.append('name', file.name);
+
+  return api.POST(`${ADMIN_CHALLENGES_URL}/${id}/files`, formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+};
+
+export const fetchCurrentChallenge = (id: number) => api.GET(`${ADMIN_CHALLENGES_URL}/${id}`);
