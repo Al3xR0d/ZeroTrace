@@ -1,0 +1,1 @@
+export { CreateFlagModal } from './CreateFlagModal';

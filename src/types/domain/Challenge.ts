@@ -27,3 +27,19 @@ export interface CreateFlag {
   content: string;
   data?: string;
 }
+
+export interface ChallengeFile {
+  challenge_id: number;
+  id: number;
+  location: string;
+  name: string;
+  type: string;
+}
+
+export interface ChallengeFlag {
+  challenge_id: number;
+  content: string;
+  data: string | null;
+  id: number;
+  type: string;
+}

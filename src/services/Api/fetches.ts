@@ -95,3 +95,25 @@ export const uploadChallengeFile = (id: number, file: File, type: string) => {
 };
 
 export const fetchCurrentChallenge = (id: number) => api.GET(`${ADMIN_CHALLENGES_URL}/${id}`);
+
+export const fetchChallengeFiles = (id: number) => api.GET(`${ADMIN_CHALLENGES_URL}/${id}/files`);
+
+export const downloadChallengeFile = (idChallenge: number, idFile: number) =>
+  api.GET(`${ADMIN_CHALLENGES_URL}/${idChallenge}/files/${idFile}`);
+
+export const downloadChallengeFileBlob = (idChallenge: number, idFile: number) =>
+  api.GET(`${ADMIN_CHALLENGES_URL}/${idChallenge}/file/${idFile}`, {
+    responseType: 'blob',
+    withCredentials: true,
+  });
+
+export const deleteChallengeFile = (idChallenge: number, idFile: number) =>
+  api.DELETE(`${ADMIN_CHALLENGES_URL}/${idChallenge}/file/${idFile}`);
+
+export const fetchChallengeFlag = (id: number) => api.GET(`${ADMIN_CHALLENGES_URL}/${id}/flags`);
+
+export const deleteChallengeFlag = (idChallenge: number, idFlag: number) =>
+  api.DELETE(`${ADMIN_CHALLENGES_URL}/${idChallenge}/flag/${idFlag}`);
+
+export const editChallengeFlag = (idChallenge: number, idFlag: number, data: CreateFlag) =>
+  api.POST(`${ADMIN_CHALLENGES_URL}/${idChallenge}/flags/${idFlag}`, data);

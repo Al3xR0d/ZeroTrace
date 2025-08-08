@@ -18,6 +18,7 @@ import {
   TeamUpdateData,
   Challenge,
   CreateFlag,
+  ChallengeFlag,
 } from '@/types';
 import {
   login,
@@ -41,6 +42,12 @@ import {
   createFlag,
   uploadChallengeFile,
   fetchCurrentChallenge,
+  fetchChallengeFiles,
+  downloadChallengeFile,
+  deleteChallengeFile,
+  fetchChallengeFlag,
+  deleteChallengeFlag,
+  editChallengeFlag,
 } from '@/services/Api/fetches';
 import { message, notification } from 'antd';
 import { error } from 'console';
@@ -568,12 +575,12 @@ export const useCreateFlag = () => {
 
   return useMutation({
     mutationFn: ({ data, id }: { data: CreateFlag; id: number }) => createFlag(data, id),
-    onSuccess: (createdChallenge) => {
+    onSuccess: (_, variables) => {
       notification.success({
         message: 'Flag created',
         description: `Flag created.`,
       });
-      qc.invalidateQueries({ queryKey: ['flags', createdChallenge.id] });
+      qc.invalidateQueries({ queryKey: ['flags', variables.id] });
     },
     onError: (err: any) =>
       notification.error({
@@ -596,5 +603,86 @@ export const useFetchCurrentChallenge = (id: number) => {
     queryFn: () => fetchCurrentChallenge(id),
     enabled: !!id,
     ...defaultQueryOptions,
+  });
+};
+
+export const useFetchChallengeFiles = (id: number) => {
+  return useQuery({
+    queryKey: ['files', id],
+    queryFn: () => fetchChallengeFiles(id),
+    enabled: !!id,
+    ...defaultQueryOptions,
+  });
+};
+
+export const useDownloadChallengeFile = (idChallenge: number, idFile: number) => {
+  return useQuery({
+    queryKey: ['files', idChallenge],
+    queryFn: () => downloadChallengeFile(idChallenge, idFile),
+    enabled: !!idChallenge || !!idFile,
+    ...defaultQueryOptions,
+  });
+};
+
+export const useDeleteChallengeFile = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ idChallenge, idFile }: { idChallenge: number; idFile: number }) =>
+      deleteChallengeFile(idChallenge, idFile),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['files', variables.idChallenge] });
+    },
+  });
+};
+
+export const useFetchChallengeFlag = (id: number) => {
+  return useQuery({
+    queryKey: ['flags', id],
+    queryFn: () => fetchChallengeFlag(id),
+    enabled: !!id,
+    ...defaultQueryOptions,
+  });
+};
+
+export const useDeleteChallengeFlag = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ idChallenge, idFlag }: { idChallenge: number; idFlag: number }) =>
+      deleteChallengeFlag(idChallenge, idFlag),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['flags', variables.idChallenge] });
+      message.success('All flags deleted');
+    },
+    onError: () => {
+      message.error('Error deleting flags');
+    },
+  });
+};
+
+export const useEditChallengeFlag = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      idChallenge,
+      idFlag,
+      data,
+    }: {
+      idChallenge: number;
+      idFlag: number;
+      data: CreateFlag;
+    }) => editChallengeFlag(idChallenge, idFlag, data),
+    onSuccess: (_, variables) => {
+      notification.success({
+        message: 'Flag edited',
+      });
+      queryClient.invalidateQueries({ queryKey: ['flags', variables.idChallenge] });
+    },
+    onError: (err: any) =>
+      notification.error({
+        message: 'Flag correction error',
+        description: err.message,
+      }),
   });
 };
