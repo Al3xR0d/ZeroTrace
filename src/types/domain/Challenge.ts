@@ -43,3 +43,22 @@ export interface ChallengeFlag {
   id: number;
   type: string;
 }
+
+export interface ChallengeHints {
+  id: number;
+  challenge_id: number;
+  content: string;
+  cost: number;
+  type: string;
+}
+
+export interface CreateHint {
+  challenge_id: number;
+  content: string;
+  cost: number | null;
+  type: string | null;
+}
+
+export interface ChallengesFreeze {
+  unfreeze_at: string;
+}

@@ -7,43 +7,64 @@ import {
   useDeleteChallengeFile,
   useFetchChallengeFlag,
   useDeleteChallengeFlag,
+  useFetchChallengeHints,
+  useDeleteChallengeHints,
 } from '@/hooks/useQueries';
 import { Spin, Typography, Tabs, Upload, Button, message, Space, Table, Alert } from 'antd';
 import TabPane from 'antd/es/tabs/TabPane';
 import { UploadOutlined, DownloadOutlined, DeleteOutlined, EditOutlined } from '@ant-design/icons';
 import { UploadFile } from 'antd/lib';
-import { ChallengeFile, ChallengeFlag } from '@/types';
+import { ChallengeFile, ChallengeFlag, ChallengeHints } from '@/types';
 import styles from './ChallengeDetailPage.module.css';
 import { useQueryClient } from '@tanstack/react-query';
 import { downloadChallengeFileBlob } from '@/services/Api/fetches';
 import type { ColumnsType } from 'antd/lib/table';
 import { CreateFlagModal } from '@/components/Modal/CreateFlagModal';
 import { EditFlagModal } from '@/components/Modal/EditFlagModal';
+import { CreateHintModal } from '@/components/Modal/CreateHintModal';
+import { EditHintModal } from '@/components/Modal/EditHintModal';
 
 export const ChallengeDetailPage: React.FC = () => {
   const [fileList, setFileList] = useState<UploadFile[]>([]);
   const [uploading, setUploading] = useState<boolean>(false);
   const [createFlagModalOpen, setCreateFlagModalOpen] = useState<boolean>(false);
+  const [createHintModalOpen, setCreateHintModalOpen] = useState<boolean>(false);
   const [editFlagModalOpen, setEditFlagModalOpnen] = useState<boolean>(false);
+  const [editHintModalOpen, setEditHintModalOpnen] = useState<boolean>(false);
   const [editedflag, setEditedFlag] = useState<ChallengeFlag | null>(null);
+  const [editedHint, setEditedHint] = useState<ChallengeHints | null>(null);
   const { id } = useParams<{ id: string }>();
   const challengeId = Number(id);
   const queryClient = useQueryClient();
 
-  const { data, isLoading, isError } = useFetchCurrentChallenge(challengeId);
+  const uploadMutation = useUploadChallengeFile();
+  const deleteFileMutation = useDeleteChallengeFile();
+  const deleteFlagMutation = useDeleteChallengeFlag();
+  const deleteHintMutation = useDeleteChallengeHints();
+
+  const {
+    data: challenges,
+    isLoading: challengeLoading,
+    isError: challengeError,
+  } = useFetchCurrentChallenge(challengeId);
+
   const {
     data: files = [],
     isLoading: filesLoading,
     isError: filesError,
   } = useFetchChallengeFiles(challengeId);
-  const uploadMutation = useUploadChallengeFile();
-  const deleteFileMutation = useDeleteChallengeFile();
+
   const {
     data: flags = [],
     isLoading: flagsLoading,
     isError: flagsError,
   } = useFetchChallengeFlag(challengeId);
-  const deleteFlagMutation = useDeleteChallengeFlag();
+
+  const {
+    data: hints = [],
+    isLoading: hintsLoading,
+    isError: hintsError,
+  } = useFetchChallengeHints(challengeId);
 
   const handleUpload = async () => {
     if (!fileList.length) return;
@@ -97,9 +118,14 @@ export const ChallengeDetailPage: React.FC = () => {
     await deleteFlagMutation.mutateAsync({ idChallenge: challengeId, idFlag: flag.id });
   };
 
-  if (isLoading || filesLoading) return <Spin />;
-  if (isError || !data) return <div>Error loading challenge</div>;
+  const handleDeleteHint = async (hint: ChallengeHints) => {
+    await deleteHintMutation.mutateAsync({ idChallenge: challengeId, idHint: hint.id });
+  };
+
+  if (challengeLoading || filesLoading) return <Spin />;
+  if (challengeError || !challenges) return <div>Error loading challenge</div>;
   if (filesError || !files) return <div>Error loading files</div>;
+  if (hintsError || !hints) return <div>Error loading hints</div>;
 
   const uploadProps = {
     multiple: true,
@@ -131,12 +157,53 @@ export const ChallengeDetailPage: React.FC = () => {
               setEditedFlag(record);
               setEditFlagModalOpnen(true);
             }}
-            icon={<EditOutlined />}
+            icon={<EditOutlined />}    ////////// Кнопка редактирования флага
           /> */}
           <Button
             size="small"
             danger
             onClick={() => handleDeleteFlag(record)}
+            icon={<DeleteOutlined />}
+          />
+        </Space>
+      ),
+    },
+  ];
+
+  const hintsColumns: ColumnsType<any> = [
+    {
+      title: 'Type',
+      dataIndex: 'type',
+      key: 'type',
+    },
+    {
+      title: 'Hint',
+      dataIndex: 'content',
+      key: 'content',
+      render: (text: string) => <span className={styles.hintContent}>{text}</span>,
+    },
+    {
+      title: 'Cost',
+      dataIndex: 'cost',
+      key: 'cost',
+    },
+    {
+      title: 'Settings',
+      key: 'settings',
+      render: (_, record) => (
+        <Space>
+          <Button
+            size="small"
+            onClick={() => {
+              setEditedHint(record);
+              setEditHintModalOpnen(true);
+            }}
+            icon={<EditOutlined />}
+          />
+          <Button
+            size="small"
+            danger
+            onClick={() => handleDeleteHint(record)}
             icon={<DeleteOutlined />}
           />
         </Space>
@@ -150,8 +217,8 @@ export const ChallengeDetailPage: React.FC = () => {
 
   return (
     <div className={styles.container}>
-      <Typography.Title level={2}>{data.name}</Typography.Title>
-      <p>Value: {data.value}</p>
+      <Typography.Title level={2}>{challenges.name}</Typography.Title>
+      <p>Value: {challenges.value}</p>
       <Tabs>
         <TabPane tab="Files" key="file">
           <ul className={styles.fileList}>
@@ -227,20 +294,41 @@ export const ChallengeDetailPage: React.FC = () => {
           <Button
             type="primary"
             onClick={() => setCreateFlagModalOpen(true)}
-            className={styles.createFlagButton}
+            className={styles.createButton}
           >
             Add Flag
           </Button>
         </TabPane>
-        <TabPane tab="Hints" key="hints"></TabPane>
+        <TabPane tab="Hints" key="hints">
+          {hintsLoading ? (
+            <Spin />
+          ) : hintsError ? (
+            <Alert type="error" message="Error loading hints" />
+          ) : (
+            <Table
+              rowKey="id"
+              dataSource={hints}
+              columns={hintsColumns}
+              pagination={false}
+              size="small"
+              locale={{ emptyText: 'No hints found' }}
+            />
+          )}
+
+          <Button
+            type="primary"
+            onClick={() => setCreateHintModalOpen(true)}
+            className={styles.createButton}
+          >
+            Add Hint
+          </Button>
+        </TabPane>
       </Tabs>
       {createFlagModalOpen && (
         <CreateFlagModal
           open={createFlagModalOpen}
           onCancel={() => setCreateFlagModalOpen(false)}
-          onSuccess={() => {
-            setCreateFlagModalOpen(false);
-          }}
+          onSuccess={() => setCreateFlagModalOpen(false)}
           challengeId={challengeId}
         />
       )}
@@ -250,6 +338,22 @@ export const ChallengeDetailPage: React.FC = () => {
           onCancel={() => setEditFlagModalOpnen(false)}
           onSuccess={() => setEditFlagModalOpnen(false)}
           currentFlag={editedflag}
+        />
+      )}
+      {createHintModalOpen && (
+        <CreateHintModal
+          open={createHintModalOpen}
+          onCancel={() => setCreateHintModalOpen(false)}
+          onSuccess={() => setCreateHintModalOpen(false)}
+          challengeId={challengeId}
+        />
+      )}
+      {editHintModalOpen && editedHint && (
+        <EditHintModal
+          open={editHintModalOpen}
+          onCancel={() => setEditHintModalOpnen(false)}
+          onSuccess={() => setEditHintModalOpnen(false)}
+          editedHint={editedHint}
         />
       )}
     </div>

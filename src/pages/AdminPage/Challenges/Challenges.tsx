@@ -19,6 +19,7 @@ export const Challenges: React.FC = () => {
   const [editChallengeOpen, setEditChallengeOpen] = useState<boolean>(false);
   const [editingChallenge, setEditingChallenge] = useState<Challenge | null>(null);
   const [createOpen, setCreateOpen] = useState(false);
+
   const { data: allChallenges = [], isLoading, isError, error } = useFetchAllChallengesAdmin();
 
   const handleEditSuccess = () => {

@@ -19,6 +19,8 @@ import {
   Challenge,
   CreateFlag,
   ChallengeFlag,
+  CreateHint,
+  ChallengesFreeze,
 } from '@/types';
 import {
   login,
@@ -48,6 +50,11 @@ import {
   fetchChallengeFlag,
   deleteChallengeFlag,
   editChallengeFlag,
+  fetchChallengeHints,
+  createChallengeHints,
+  deleteChallengeHint,
+  editChallengeHint,
+  freezeChallengeTime,
 } from '@/services/Api/fetches';
 import { message, notification } from 'antd';
 import { error } from 'console';
@@ -684,5 +691,96 @@ export const useEditChallengeFlag = () => {
         message: 'Flag correction error',
         description: err.message,
       }),
+  });
+};
+
+export const useFetchChallengeHints = (id: number) => {
+  return useQuery({
+    queryKey: ['hints', id],
+    queryFn: () => fetchChallengeHints(id),
+    enabled: !!id,
+    ...defaultQueryOptions,
+  });
+};
+
+export const useCreateChallengeHints = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, data }: { id: number; data: CreateHint }) => createChallengeHints(id, data),
+    onSuccess: (_, variables) => {
+      notification.success({
+        message: 'Hint created',
+      });
+      queryClient.invalidateQueries({ queryKey: ['hints', variables.id] });
+    },
+    onError: (err: any) =>
+      notification.error({
+        message: 'Hint creation error',
+        description: err.message,
+      }),
+  });
+};
+
+export const useDeleteChallengeHints = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ idChallenge, idHint }: { idChallenge: number; idHint: number }) =>
+      deleteChallengeHint(idChallenge, idHint),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['hints', variables.idChallenge] });
+      message.success('Hint deleted');
+    },
+    onError: () => {
+      message.error('Error deleting hints');
+    },
+  });
+};
+
+export const useEditChallengeHint = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      idChallenge,
+      idHint,
+      data,
+    }: {
+      idChallenge: number;
+      idHint: number;
+      data: CreateHint;
+    }) => editChallengeHint(idChallenge, idHint, data),
+    onSuccess: (_, variables) => {
+      notification.success({
+        message: 'Hint edited',
+      });
+      queryClient.invalidateQueries({ queryKey: ['hints', variables.idChallenge] });
+    },
+    onError: (err: any) =>
+      notification.error({
+        message: 'Hint correction error',
+        description: err.message,
+      }),
+  });
+};
+
+export const useFreezeChallengeTime = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ data }: { data: ChallengesFreeze }) => freezeChallengeTime(data),
+    onSuccess: () => {
+      notification.success({
+        message: 'All challenges are frozen',
+      });
+      queryClient.invalidateQueries({ queryKey: ['time'] });
+    },
+    onError: (err) => {
+      notification.error({
+        message: 'Error',
+        description: err.message,
+      });
+    },
   });
 };

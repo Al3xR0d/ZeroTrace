@@ -14,8 +14,9 @@ import {
   Button,
 } from 'antd';
 import styles from './CtfTimes.module.css';
-import { format, toZonedTime } from 'date-fns-tz';
 import { DescriptionText } from '@/shared/DescriptionText';
+import { useFreezeChallengeTime } from '@/hooks/useQueries';
+import { formatInTimeZone, timestampToRFC3339 } from '@/lib/date';
 
 const { TabPane } = Tabs;
 const { Text } = Typography;
@@ -31,6 +32,10 @@ const timezones = [
   { label: 'UTC', value: 'UTC' },
 ];
 
+const getDaysInMonth = (year: number, month: number) => {
+  return new Date(year, month, 0).getDate();
+};
+
 export const CtfTimes: React.FC = () => {
   const [form] = Form.useForm();
   const [tz, setTz] = useState<string>('Europe/Moscow');
@@ -39,6 +44,8 @@ export const CtfTimes: React.FC = () => {
     tzTime: '',
     utcTs: '',
   });
+
+  const freezeMutation = useFreezeChallengeTime();
 
   const now = useMemo(() => new Date(), []);
   const initialValues = useMemo(
@@ -52,17 +59,24 @@ export const CtfTimes: React.FC = () => {
     [now],
   );
 
+  const [maxDay, setMaxDay] = useState<number>(
+    getDaysInMonth(initialValues.year, initialValues.month),
+  );
+
   const doCompute = (values: any, timezone: string) => {
     const { month, day, year, hour, minute } = values;
     if ([month, day, year, hour, minute].every((v) => v != null)) {
-      const localDate = new Date(year, month - 1, day, hour, minute);
-      const zonedDate = toZonedTime(localDate, timezone);
-      const formatStr = "EEEE, MMMM d, yyyy 'at' HH:mm:ss zzz";
-      const local = format(localDate, formatStr, {
-        timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-      });
-      const tzTime = format(zonedDate, formatStr, { timeZone: timezone });
-      const utcTs = Math.floor(zonedDate.getTime() / 1000).toString();
+      const localDate = new Date(year, month - 1, day, hour, minute, 0, 0);
+
+      if (isNaN(localDate.getTime())) {
+        setCalc({ local: 'Invalid date', tzTime: 'Invalid date', utcTs: '' });
+        return;
+      }
+
+      const browserTz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      const local = formatInTimeZone(localDate, browserTz);
+      const tzTime = formatInTimeZone(localDate, timezone);
+      const utcTs = Math.floor(localDate.getTime() / 1000).toString();
 
       setCalc({ local, tzTime, utcTs });
     }
@@ -71,15 +85,36 @@ export const CtfTimes: React.FC = () => {
   useEffect(() => {
     form.setFieldsValue(initialValues);
     doCompute(initialValues, tz);
+    setMaxDay(getDaysInMonth(initialValues.year, initialValues.month));
   }, [form, initialValues, tz]);
 
   const onValuesChange: FormProps<any>['onValuesChange'] = (_changed, allValues) => {
+    const changedKeys = Object.keys(_changed);
+    if (changedKeys.includes('month') || changedKeys.includes('year')) {
+      const month = allValues.month ?? initialValues.month;
+      const year = allValues.year ?? initialValues.year;
+      const md = getDaysInMonth(year, month);
+      setMaxDay(md);
+
+      const currentDay = allValues.day ?? initialValues.day;
+      if (currentDay > md) {
+        form.setFieldsValue({ day: md });
+        allValues.day = md;
+      }
+    }
+
     doCompute(allValues, tz);
   };
 
   const onTzChange = (newTz: string) => {
     setTz(newTz);
     doCompute(form.getFieldsValue(), newTz);
+  };
+
+  const handleFreezeOk = () => {
+    freezeMutation.mutate({
+      data: { unfreeze_at: timestampToRFC3339(calc.utcTs) },
+    });
   };
 
   const renderTimeFields = () => (
@@ -91,7 +126,7 @@ export const CtfTimes: React.FC = () => {
       </Col>
       <Col>
         <Form.Item name="day" label="Day" rules={[{ required: true }]}>
-          <InputNumber min={1} max={31} className={styles.timeField} />
+          <InputNumber min={1} max={maxDay} className={styles.timeField} />
         </Form.Item>
       </Col>
       <Col>
@@ -200,6 +235,7 @@ export const CtfTimes: React.FC = () => {
           </Form.Item>
           {renderCommonFooter()}
         </Form>
+        <Button onClick={handleFreezeOk}>111111</Button>
       </TabPane>
     </Tabs>
   );

@@ -9,6 +9,8 @@ import {
   Challenge,
   CreateChallenge,
   CreateFlag,
+  CreateHint,
+  ChallengesFreeze,
 } from '@/types';
 import {
   USER_REGISTRATION_URL,
@@ -117,3 +119,17 @@ export const deleteChallengeFlag = (idChallenge: number, idFlag: number) =>
 
 export const editChallengeFlag = (idChallenge: number, idFlag: number, data: CreateFlag) =>
   api.POST(`${ADMIN_CHALLENGES_URL}/${idChallenge}/flags/${idFlag}`, data);
+
+export const fetchChallengeHints = (id: number) => api.GET(`${ADMIN_CHALLENGES_URL}/${id}/hints`);
+
+export const createChallengeHints = (id: number, data: CreateHint) =>
+  api.POST(`${ADMIN_CHALLENGES_URL}/${id}/hints`, data);
+
+export const deleteChallengeHint = (idChallenge: number, idHint: number) =>
+  api.DELETE(`${ADMIN_CHALLENGES_URL}/${idChallenge}/hints/${idHint}`);
+
+export const editChallengeHint = (idChallenge: number, idHint: number, data: CreateHint) =>
+  api.PATCH(`${ADMIN_CHALLENGES_URL}/${idChallenge}/hints/${idHint}`, data);
+
+export const freezeChallengeTime = (data: ChallengesFreeze) =>
+  api.POST(`${ADMIN_CHALLENGES_URL}/freezeall`, data);

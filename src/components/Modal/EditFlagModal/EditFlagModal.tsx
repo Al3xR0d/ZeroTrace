@@ -29,7 +29,7 @@ export const EditFlagModal: React.FC<Props> = ({ open, onCancel, onSuccess, curr
       idChallenge: currentFlag.challenge_id,
       idFlag: currentFlag.id,
     });
-    setFlagContent('');
+    setFlagContent(currentFlag.content);
     onSuccess();
   };
 
