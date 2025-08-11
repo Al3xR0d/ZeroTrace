@@ -12,10 +12,11 @@ import {
   Divider,
   Checkbox,
   Button,
+  Flex,
 } from 'antd';
 import styles from './CtfTimes.module.css';
 import { DescriptionText } from '@/shared/DescriptionText';
-import { useFreezeChallengeTime } from '@/hooks/useQueries';
+import { useFreezeChallengeTime, useThawallChallengeTime } from '@/hooks/useQueries';
 import { formatInTimeZone, timestampToRFC3339 } from '@/lib/date';
 
 const { TabPane } = Tabs;
@@ -46,6 +47,7 @@ export const CtfTimes: React.FC = () => {
   });
 
   const freezeMutation = useFreezeChallengeTime();
+  const thawallMutation = useThawallChallengeTime();
 
   const now = useMemo(() => new Date(), []);
   const initialValues = useMemo(
@@ -117,6 +119,10 @@ export const CtfTimes: React.FC = () => {
     });
   };
 
+  const handleThawallOk = () => {
+    thawallMutation.mutate();
+  };
+
   const renderTimeFields = () => (
     <Row gutter={16} className={styles.timeFields}>
       <Col>
@@ -159,11 +165,11 @@ export const CtfTimes: React.FC = () => {
       <Form.Item label="UTC Timestamp">
         <Input readOnly value={calc.utcTs} />
       </Form.Item>
-      <Form.Item>
+      {/* <Form.Item>
         <Button type="primary" className={styles.updateButton}>
           Update
         </Button>
-      </Form.Item>
+      </Form.Item> */}
     </>
   );
 
@@ -235,7 +241,14 @@ export const CtfTimes: React.FC = () => {
           </Form.Item>
           {renderCommonFooter()}
         </Form>
-        <Button onClick={handleFreezeOk}>111111</Button>
+        <div className={styles.buttonContainer}>
+          <Button onClick={handleFreezeOk} type="primary">
+            Freeze
+          </Button>
+          <Button onClick={handleThawallOk} type="primary">
+            Thawall
+          </Button>
+        </div>
       </TabPane>
     </Tabs>
   );

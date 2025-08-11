@@ -55,6 +55,9 @@ import {
   deleteChallengeHint,
   editChallengeHint,
   freezeChallengeTime,
+  thawallChallengeTime,
+  freezeCurrentChallengeTime,
+  thawallCurrentChallengeTime,
 } from '@/services/Api/fetches';
 import { message, notification } from 'antd';
 import { error } from 'console';
@@ -773,6 +776,66 @@ export const useFreezeChallengeTime = () => {
     onSuccess: () => {
       notification.success({
         message: 'All challenges are frozen',
+      });
+      queryClient.invalidateQueries({ queryKey: ['time'] });
+    },
+    onError: (err) => {
+      notification.error({
+        message: 'Error',
+        description: err.message,
+      });
+    },
+  });
+};
+
+export const useThawallChallengeTime = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: () => thawallChallengeTime(),
+    onSuccess: () => {
+      notification.success({
+        message: 'All challenges are thawall',
+      });
+      queryClient.invalidateQueries({ queryKey: ['time'] });
+    },
+    onError: (err) => {
+      notification.error({
+        message: 'Error',
+        description: err.message,
+      });
+    },
+  });
+};
+
+export const useFreezeCurrentChallengeTime = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, data }: { id: number; data: ChallengesFreeze }) => freezeChallengeTime(data),
+    onSuccess: () => {
+      notification.success({
+        message: 'Challenge frozen',
+      });
+      queryClient.invalidateQueries({ queryKey: ['time'] });
+    },
+    onError: (err) => {
+      notification.error({
+        message: 'Error',
+        description: err.message,
+      });
+    },
+  });
+};
+
+export const useThawallCurrentChallengeTime = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id }: { id: number }) => thawallChallengeTime(),
+    onSuccess: () => {
+      notification.success({
+        message: 'Challenge thawall',
       });
       queryClient.invalidateQueries({ queryKey: ['time'] });
     },

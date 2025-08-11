@@ -133,3 +133,11 @@ export const editChallengeHint = (idChallenge: number, idHint: number, data: Cre
 
 export const freezeChallengeTime = (data: ChallengesFreeze) =>
   api.POST(`${ADMIN_CHALLENGES_URL}/freezeall`, data);
+
+export const thawallChallengeTime = () => api.POST(`${ADMIN_CHALLENGES_URL}/thawall`);
+
+export const freezeCurrentChallengeTime = (id: number, data: ChallengesFreeze) =>
+  api.POST(`${ADMIN_CHALLENGES_URL}/freezeall/${id}`, data);
+
+export const thawallCurrentChallengeTime = (id: number) =>
+  api.POST(`${ADMIN_CHALLENGES_URL}/thawall/${id}`);
