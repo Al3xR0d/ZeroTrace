@@ -9,7 +9,7 @@ export const categoriesMap = new Map([
   [8, 'AI/ML'],
   [9, 'Forensics'],
   [10, 'Steganography'],
-  [11, 'Misc.'],
+  [11, 'Misc'],
   [12, 'OSINT'],
   [13, 'Mobile'],
   [14, 'Networking'],

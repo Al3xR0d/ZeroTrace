@@ -1,0 +1,1 @@
+export { ChallengesLayout } from './ChallengesLayout';

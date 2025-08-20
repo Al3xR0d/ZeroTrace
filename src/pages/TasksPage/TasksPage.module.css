@@ -1,0 +1,133 @@
+.page {
+  padding: 0px 64px;
+  color: #f0f1ec;
+  min-height: calc(100vh - 80px);
+  box-sizing: border-box;
+  overflow-y: auto;
+}
+
+.title {
+  text-align: center;
+  font-weight: 500;
+  font-size: 28px;
+  color: #f0f1ec !important;
+  margin-bottom: 48px;
+}
+
+.message {
+  color: #f0f1ec;
+}
+
+.content {
+  display: flex;
+  gap: 40px;
+  align-items: flex-start;
+}
+
+.leftColumn {
+  width: 420px;
+  max-height: calc(100vh - 200px);
+  overflow-y: auto;
+  padding-right: 8px;
+}
+
+.rightColumn {
+  flex: 1;
+  min-height: 240px;
+}
+
+.collapse {
+  background: transparent;
+}
+
+.collapse :global(.ant-collapse-header) {
+  border-bottom: none;
+  background: transparent;
+  padding: 8px 0;
+}
+
+.collapse :global(.ant-collapse-item),
+.collapse :global(.ant-collapse-item + .ant-collapse-item) {
+  border: none;
+  box-shadow: none;
+}
+
+.collapse :global(.ant-collapse-item > .ant-collapse-header) {
+  border-bottom: none;
+}
+
+.collapse .ant-collapse-item,
+.collapse .ant-collapse-item > .ant-collapse-header,
+.collapse .ant-collapse-item > .ant-collapse-content {
+  background: transparent;
+  box-shadow: none;
+}
+
+.collapse .ant-collapse-header {
+  border: none;
+}
+
+.collapse .ant-collapse-item,
+.collapse .ant-collapse-item + .ant-collapse-item {
+  border: none;
+}
+
+.collapse .ant-collapse-item {
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.headerLabel {
+  display: flex;
+  align-items: center;
+  /* gap: 10px; */
+  font-size: 18px;
+  line-height: 1;
+  color: #f0f1ec;
+  padding: 8px 0;
+}
+
+.slash {
+  opacity: 0.8;
+  margin-right: 2px;
+}
+
+.keyword {
+  text-transform: lowercase;
+  letter-spacing: 0.04em;
+}
+
+.categoryName {
+  color: #f0f1ec;
+}
+
+.panelBody {
+  padding: 12px 0 16px 16px;
+}
+
+.navLink {
+  display: inline-block;
+  text-decoration: none;
+  color: #f0f1ec;
+  font-size: 15px;
+}
+
+.collapse :global(.ant-collapse-header:hover) .headerLabel,
+.collapse :global(.ant-collapse-header:hover) .headerLabel .categoryName {
+  color: #007537;
+}
+
+.headerLabel:hover .categoryName {
+  color: #007537;
+}
+
+.cardsGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  max-width: 100%;
+}
+
+.collapse :global(.ant-collapse-expand-icon) {
+  display: none !important;
+}

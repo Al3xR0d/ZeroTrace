@@ -1,0 +1,56 @@
+.wrapper {
+  display: inline-block;
+}
+
+.wrapper:hover .filename {
+  color: #007537;
+  cursor: pointer;
+}
+
+.wrapper:hover .card {
+  border-color: #181818;
+  background-color: #252525;
+  box-shadow:
+    0px 6px 50px #555555,
+    0px -6px 50px #555555,
+    inset 0 6px 50px #555555,
+    inset 0 -6px 50px #555555;
+  cursor: pointer;
+}
+
+.wrapper {
+  cursor: pointer;
+}
+
+.card {
+  width: 120px;
+  height: 120px;
+  border: 8px solid #323232;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  background: #1a1a1a;
+  color: #f0f1ec;
+  margin: 8px;
+  transition: all 0.3s ease;
+  padding: 10px;
+}
+
+.value {
+  font-size: 16px;
+  margin-bottom: 8px;
+}
+
+.filename {
+  font-size: 14px;
+  opacity: 0.8;
+  color: #f0f1ec;
+  display: block;
+  text-align: center;
+  max-width: 120px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: color 0.2s ease;
+}

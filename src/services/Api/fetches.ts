@@ -141,3 +141,25 @@ export const freezeCurrentChallengeTime = (id: number, data: ChallengesFreeze) =
 
 export const thawallCurrentChallengeTime = (id: number) =>
   api.POST(`${ADMIN_CHALLENGES_URL}/thawall/${id}`);
+
+export const fetchAllChallengesUser = async (challengeId: number): Promise<Challenge[]> =>
+  api.GET(`${CHALLENGES_URL}/category/${challengeId}`);
+
+export const fetchCurrentChallengeUser = async (challengeId: number): Promise<Challenge> =>
+  api.GET(`${CHALLENGES_URL}/${challengeId}`);
+
+export const fetchChallengeFilesUser = (id: number) => api.GET(`${CHALLENGES_URL}/${id}/files`);
+
+export const downloadChallengeFileUserBlob = (idChallenge: number, idFile: number) =>
+  api.GET(`${CHALLENGES_URL}/${idChallenge}/file/${idFile}`, {
+    responseType: 'blob',
+    withCredentials: true,
+  });
+
+export const attemptFlag = ({
+  idChallenge,
+  submission,
+}: {
+  idChallenge: number;
+  submission: string;
+}) => api.POST(`${CHALLENGES_URL}/attempt`, { challenge_id: idChallenge, submission });

@@ -58,6 +58,10 @@ import {
   thawallChallengeTime,
   freezeCurrentChallengeTime,
   thawallCurrentChallengeTime,
+  fetchAllChallengesUser,
+  fetchCurrentChallengeUser,
+  fetchChallengeFilesUser,
+  attemptFlag,
 } from '@/services/Api/fetches';
 import { message, notification } from 'antd';
 import { error } from 'console';
@@ -101,6 +105,11 @@ interface Notification {
   title: string;
   content: string;
   date: string;
+}
+
+interface AttemptFlagResponse {
+  success: boolean;
+  message: string;
 }
 
 export const useLogin = () => {
@@ -843,6 +852,61 @@ export const useThawallCurrentChallengeTime = () => {
       notification.error({
         message: 'Error',
         description: err.message,
+      });
+    },
+  });
+};
+
+export const useFetchAllChallenges = (challengeId: number) =>
+  useQuery<Challenge[]>({
+    queryKey: ['challenges', challengeId],
+    queryFn: () => fetchAllChallengesUser(challengeId as number),
+    enabled: Boolean(challengeId),
+    ...defaultQueryOptions,
+  });
+
+export const useFetchCurrentChallengeUser = (challengeId: number) =>
+  useQuery<Challenge>({
+    queryKey: ['challenge', challengeId],
+    queryFn: () => fetchCurrentChallengeUser(challengeId as number),
+    enabled: Boolean(challengeId),
+    ...defaultQueryOptions,
+  });
+
+export const useFetchChallengeFilesUser = (id: number) => {
+  return useQuery({
+    queryKey: ['files', id],
+    queryFn: () => fetchChallengeFilesUser(id),
+    enabled: !!id,
+    ...defaultQueryOptions,
+  });
+};
+
+export const useAttemptFlag = (onClose?: () => void) => {
+  const queryClient = useQueryClient();
+
+  return useMutation<AttemptFlagResponse, Error, { idChallenge: number; submission: string }>({
+    mutationFn: attemptFlag,
+    onSuccess: (response) => {
+      if (response.success) {
+        notification.success({
+          message: response.message,
+          placement: 'topRight',
+        });
+        if (onClose) onClose();
+      } else {
+        notification.error({
+          message: response.message,
+          placement: 'topRight',
+        });
+      }
+      queryClient.invalidateQueries({ queryKey: ['flag'] });
+    },
+    onError: (error) => {
+      notification.error({
+        message: 'Flag acceptance error',
+        description: error.message || 'An unexpected error occurred',
+        placement: 'topRight',
       });
     },
   });
