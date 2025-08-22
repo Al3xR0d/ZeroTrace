@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Modal, Input, Flex } from 'antd';
+import { Modal, Input, Flex, Button } from 'antd';
 import { Challenge } from '@/types';
 import { MdKeyboardReturn } from 'react-icons/md';
 import styles from './ChallengeModal.module.css';
@@ -35,7 +35,7 @@ const FileItem = React.memo(({ name, fileId, challengeId }: FileItemProps) => {
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
     } catch (error) {
-      console.error('Ошибка при скачивании файла:', error);
+      console.error('Download error:', error);
     }
   };
 
@@ -84,25 +84,18 @@ export const ChallengeModal: React.FC<Props> = ({
     <Modal
       open={open}
       onCancel={onCancel}
-      onOk={handleCreateAttempt}
       title={`/task/${categoryName}/${currentChallenge.name}.txt`}
       maskClosable={false}
       centered
       closable={false}
       className={styles.modal}
       mask={false}
-      okText={
-        <span className={styles.okInner}>
-          <span className={styles.prompt}>&gt;_</span>
-          <MdKeyboardReturn size={18} />
-        </span>
-      }
-      okButtonProps={{
-        type: 'primary',
-        className: styles.okButton,
-        disabled: isButtonDisabled,
-      }}
       width={720}
+      footer={[
+        <Button key="cancel" onClick={onCancel}>
+          Cancel
+        </Button>,
+      ]}
     >
       <Flex vertical gap="middle">
         {currentChallenge.description}
@@ -119,11 +112,27 @@ export const ChallengeModal: React.FC<Props> = ({
             ))}
           </div>
         )}
-        <Input
-          placeholder="Enter the flag"
-          value={inputValue}
-          onChange={(e) => setInputValue(e.target.value)}
-        />
+
+        <div className={styles.inputWrapper}>
+          <Input
+            placeholder="Enter the flag"
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+            onPressEnter={() => !isButtonDisabled && handleCreateAttempt()}
+            className={styles.inputWithButton}
+            disabled={currentChallenge.solved_by_me}
+          />
+          <button
+            className={`${styles.okButton} ${isButtonDisabled ? styles.disabled : ''}`}
+            onClick={handleCreateAttempt}
+            disabled={isButtonDisabled}
+          >
+            <span className={styles.okInner}>
+              <span className={styles.prompt}>&gt;_</span>
+              <MdKeyboardReturn size={18} />
+            </span>
+          </button>
+        </div>
       </Flex>
     </Modal>
   );

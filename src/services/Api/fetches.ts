@@ -11,6 +11,7 @@ import {
   CreateFlag,
   CreateHint,
   ChallengesFreeze,
+  ChangePassword,
 } from '@/types';
 import {
   USER_REGISTRATION_URL,
@@ -163,3 +164,5 @@ export const attemptFlag = ({
   idChallenge: number;
   submission: string;
 }) => api.POST(`${CHALLENGES_URL}/attempt`, { challenge_id: idChallenge, submission });
+
+export const changePassword = (data: ChangePassword) => api.PATCH(`${USER_URL}/me`, data);

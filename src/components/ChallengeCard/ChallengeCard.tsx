@@ -7,11 +7,12 @@ interface Props {
   value: number;
   id: number;
   onClick: (id: number) => void;
+  done: boolean;
 }
 
-export const ChallengeCard: React.FC<Props> = ({ name, value, id, onClick }) => {
+export const ChallengeCard: React.FC<Props> = ({ name, value, id, onClick, done }) => {
   return (
-    <div className={styles.wrapper} onClick={() => onClick(id)}>
+    <div className={done ? styles.doneWrapper : styles.wrapper} onClick={() => onClick(id)}>
       <Flex vertical gap="middle">
         <div className={styles.card}>
           <div className={styles.value}>›_{value}</div>

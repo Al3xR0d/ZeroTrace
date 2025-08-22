@@ -55,7 +55,7 @@ export const CreateFlagModal: React.FC<Props> = ({ open, onCancel, onSuccess, ch
             placeholder="Type"
             onChange={(e) => setType(e)}
             options={[
-              { value: 'standard', label: 'Standard' },
+              { value: 'static', label: 'Static' },
               { value: 'dynamic', label: 'Dynamic' },
             ]}
           />

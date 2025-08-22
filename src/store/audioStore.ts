@@ -1,11 +1,13 @@
 import { create } from 'zustand';
-import { persist, createJSONStorage } from 'zustand/middleware';
+import { persist } from 'zustand/middleware';
 
 interface AudioState {
   enabled: boolean;
   isPlaying: boolean;
+  currentTime: number;
   setEnabled: (value: boolean) => void;
   setPlaying: (value: boolean) => void;
+  setCurrentTime: (time: number) => void;
 }
 
 export const useAudioStore = create<AudioState>()(
@@ -13,12 +15,11 @@ export const useAudioStore = create<AudioState>()(
     (set) => ({
       enabled: true,
       isPlaying: false,
+      currentTime: 0,
       setEnabled: (value) => set({ enabled: value }),
       setPlaying: (value) => set({ isPlaying: value }),
+      setCurrentTime: (time) => set({ currentTime: time }),
     }),
-    {
-      name: 'audio-store',
-      storage: createJSONStorage(() => localStorage),
-    },
+    { name: 'audio-store' },
   ),
 );

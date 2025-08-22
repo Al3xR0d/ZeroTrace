@@ -21,6 +21,7 @@ import {
   ChallengeFlag,
   CreateHint,
   ChallengesFreeze,
+  ChangePassword,
 } from '@/types';
 import {
   login,
@@ -62,6 +63,7 @@ import {
   fetchCurrentChallengeUser,
   fetchChallengeFilesUser,
   attemptFlag,
+  changePassword,
 } from '@/services/Api/fetches';
 import { message, notification } from 'antd';
 import { error } from 'console';
@@ -906,6 +908,25 @@ export const useAttemptFlag = (onClose?: () => void) => {
       notification.error({
         message: 'Flag acceptance error',
         description: error.message || 'An unexpected error occurred',
+        placement: 'topRight',
+      });
+    },
+  });
+};
+
+export const useChangePassword = () => {
+  return useMutation<void, Error, ChangePassword>({
+    mutationFn: (data) => changePassword(data),
+    onSuccess: () => {
+      notification.success({
+        message: 'Password changed',
+        placement: 'topRight',
+      });
+    },
+    onError: (error) => {
+      notification.error({
+        message: 'Error when changing password',
+        description: error.message || 'Failed to change password',
         placement: 'topRight',
       });
     },

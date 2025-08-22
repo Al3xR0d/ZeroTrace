@@ -27,6 +27,7 @@ export interface User {
   id: number;
   name: string;
   team_id: null | number;
+  score: number;
 }
 
 export interface UsersListResponse {
@@ -46,3 +47,7 @@ const updatableFields = [
 
 type UpdatableKeys = (typeof updatableFields)[number];
 export type UserUpdateData = Partial<Pick<AllUsers, UpdatableKeys>>;
+
+export interface ChangePassword {
+  password: string;
+}

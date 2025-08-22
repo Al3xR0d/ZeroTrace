@@ -6,20 +6,25 @@ import { useNavigate } from 'react-router-dom';
 import { useUserStore } from '@/store/userStore';
 import { useQueryClient } from '@tanstack/react-query';
 import { useAudioStore } from '@/store/audioStore';
-import { useNotificationsSSE } from '@/hooks/useQueries';
+import { useNotificationsSSE, useCurrentUser } from '@/hooks/useQueries';
 import { useNotificationStore } from '@/store/notificationsStore';
 import { NotificationModal } from '@/components/Modal/NotificationModal';
+import { useLocation } from 'react-router-dom';
 
 export const MenuPage: React.FC = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { notifications, unreadCount, markAsRead, clearAll } = useNotificationStore();
+  const { refetch } = useCurrentUser();
   const [isModalOpen, setModalOpen] = useState(false);
+  const [loggedOut, setLoggedOut] = useState(false);
 
   const clearUser = useUserStore((store) => store.clearUser);
   const currentUser = useUserStore((store) => store.currentUser);
   const isAuthenticated = !!currentUser?.name;
   const { enabled, setEnabled } = useAudioStore();
+
+  const location = useLocation();
 
   useNotificationsSSE();
 
@@ -29,19 +34,23 @@ export const MenuPage: React.FC = () => {
 
   const handleLogout = async () => {
     clearUser();
-    queryClient.removeQueries();
     await useUserStore.persist.clearStorage();
+    queryClient.clear();
     document.cookie = 'duck=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-    // useNotificationStore.getState().clearAll();
-    // await useNotificationStore.persist.clearStorage();
+    setLoggedOut(true);
+    console.log(currentUser);
     navigate('/menu', { replace: true });
   };
 
+  if (!isAuthenticated && location.pathname !== '/menu') {
+    navigate('/menu', { replace: true });
+  }
+
   useEffect(() => {
-    if (!isAuthenticated) {
-      navigate('/menu', { replace: true });
+    if (location.pathname === '/menu' && !loggedOut) {
+      refetch();
     }
-  }, [isAuthenticated, navigate]);
+  }, [location.pathname, loggedOut]);
 
   return (
     <div className={styles.pageContainer}>
@@ -50,10 +59,17 @@ export const MenuPage: React.FC = () => {
           className={`${styles.profileContainer} ${isAuthenticated ? styles.noHover : ''}`}
           onClick={handleProfileClick}
         >
-          <UserOutlined className={styles.profileIcon} />
-          <span className={styles.profileText}>
-            {isAuthenticated ? currentUser?.name : 'Profile'}
-          </span>
+          <Flex vertical gap="middle">
+            <Flex align="center" gap="small">
+              <UserOutlined className={styles.profileIcon} />
+              <span className={styles.profileText}>
+                {isAuthenticated ? currentUser?.name : 'Profile'}
+              </span>
+            </Flex>
+            <span className={styles.profileText}>
+              {isAuthenticated ? `score: ${currentUser?.score}` : ''}
+            </span>
+          </Flex>
         </div>
         {isAuthenticated && unreadCount > 0 && (
           <div className={styles.bellWrapper} onClick={() => setModalOpen(true)}>
@@ -86,14 +102,14 @@ export const MenuPage: React.FC = () => {
             <Button className="custom-btn" onClick={handleLogout}>
               Exit
             </Button>
-            <div className={styles.audioToggle}>
+            {/* <div className={styles.audioToggle}>
               <Switch
                 checked={enabled}
                 onChange={(val) => setEnabled(val)}
                 checkedChildren={<AudioOutlined />}
                 unCheckedChildren={<AudioMutedOutlined />}
               />
-            </div>
+            </div> */}
           </>
         )}
       </Flex>

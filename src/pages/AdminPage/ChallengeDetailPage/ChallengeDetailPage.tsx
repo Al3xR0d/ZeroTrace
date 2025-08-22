@@ -11,7 +11,6 @@ import {
   useDeleteChallengeHints,
 } from '@/hooks/useQueries';
 import { Spin, Typography, Tabs, Upload, Button, message, Space, Table, Alert } from 'antd';
-import TabPane from 'antd/es/tabs/TabPane';
 import { UploadOutlined, DownloadOutlined, DeleteOutlined, EditOutlined } from '@ant-design/icons';
 import { UploadFile } from 'antd/lib';
 import { ChallengeFile, ChallengeFlag, ChallengeHints } from '@/types';
@@ -23,6 +22,7 @@ import { CreateFlagModal } from '@/components/Modal/CreateFlagModal';
 import { EditFlagModal } from '@/components/Modal/EditFlagModal';
 import { CreateHintModal } from '@/components/Modal/CreateHintModal';
 import { EditHintModal } from '@/components/Modal/EditHintModal';
+import { categoriesMap } from '@/lib/categories';
 
 export const ChallengeDetailPage: React.FC = () => {
   const [fileList, setFileList] = useState<UploadFile[]>([]);
@@ -219,111 +219,133 @@ export const ChallengeDetailPage: React.FC = () => {
     <div className={styles.container}>
       <Typography.Title level={2}>{challenges.name}</Typography.Title>
       <p>Value: {challenges.value}</p>
-      <Tabs>
-        <TabPane tab="Files" key="file">
-          <ul className={styles.fileList}>
-            {files.map((file: ChallengeFile) => (
-              <li key={file.id} className={styles.fileItem}>
-                <span>{file.name}</span>
-                <span className={styles.actions}>
-                  <Button
-                    icon={<DownloadOutlined />}
-                    onClick={() => handleDownload(file)}
-                    size="small"
-                  />
-                  <Button
-                    icon={<DeleteOutlined />}
-                    onClick={() => handleDeleteFile(file)}
-                    size="small"
-                    danger
-                    loading={deleteFileMutation.isPending}
-                  />
-                </span>
-              </li>
-            ))}
-          </ul>
-          <div className={styles.uploadSection}>
-            <Upload {...uploadProps}>
-              <Button icon={<UploadOutlined />} className={styles.uploadButton}>
-                Select file(s)
-              </Button>
-            </Upload>
-            <Button
-              type="primary"
-              onClick={handleUpload}
-              loading={uploading}
-              disabled={!fileList.length}
-              className={styles.uploadSubmitButton}
-            >
-              Upload
-            </Button>
-          </div>
-          {fileList.length > 0 && (
-            <ul className={styles.uploadList}>
-              {fileList.map((file) => (
-                <li key={file.uid} className={styles.uploadListItem}>
-                  <span className={styles.uploadListFileName}>{file.name}</span>
-                  <Button
-                    icon={<DeleteOutlined />}
-                    size="small"
-                    danger
-                    className={styles.uploadListRemoveButton}
-                    onClick={() => handleRemoveSelected(file)}
-                  />
-                </li>
-              ))}
-            </ul>
-          )}
-        </TabPane>
-        <TabPane tab="Flags" key="flags">
-          {flagsLoading ? (
-            <Spin />
-          ) : flagsError ? (
-            <Alert type="error" message="Error loading flags" />
-          ) : (
-            <Table
-              rowKey="id"
-              dataSource={flags}
-              columns={flagColumns}
-              pagination={false}
-              size="small"
-              locale={{ emptyText: 'No flags found' }}
-            />
-          )}
+      <p>Category: {categoriesMap.get(challenges.category_id)}</p>
+      <Tabs
+        items={[
+          {
+            key: 'file',
+            label: 'Files',
+            children: (
+              <>
+                <ul className={styles.fileList}>
+                  {files.map((file: ChallengeFile) => (
+                    <li key={file.id} className={styles.fileItem}>
+                      <span>{file.name}</span>
+                      <span className={styles.actions}>
+                        <Button
+                          icon={<DownloadOutlined />}
+                          onClick={() => handleDownload(file)}
+                          size="small"
+                        />
+                        <Button
+                          icon={<DeleteOutlined />}
+                          onClick={() => handleDeleteFile(file)}
+                          size="small"
+                          danger
+                          loading={deleteFileMutation.isPending}
+                        />
+                      </span>
+                    </li>
+                  ))}
+                </ul>
 
-          <Button
-            type="primary"
-            onClick={() => setCreateFlagModalOpen(true)}
-            className={styles.createButton}
-          >
-            Add Flag
-          </Button>
-        </TabPane>
-        <TabPane tab="Hints" key="hints">
-          {hintsLoading ? (
-            <Spin />
-          ) : hintsError ? (
-            <Alert type="error" message="Error loading hints" />
-          ) : (
-            <Table
-              rowKey="id"
-              dataSource={hints}
-              columns={hintsColumns}
-              pagination={false}
-              size="small"
-              locale={{ emptyText: 'No hints found' }}
-            />
-          )}
+                <div className={styles.uploadSection}>
+                  <Upload {...uploadProps}>
+                    <Button icon={<UploadOutlined />} className={styles.uploadButton}>
+                      Select file(s)
+                    </Button>
+                  </Upload>
+                  <Button
+                    type="primary"
+                    onClick={handleUpload}
+                    loading={uploading}
+                    disabled={!fileList.length}
+                    className={styles.uploadSubmitButton}
+                  >
+                    Upload
+                  </Button>
+                </div>
 
-          <Button
-            type="primary"
-            onClick={() => setCreateHintModalOpen(true)}
-            className={styles.createButton}
-          >
-            Add Hint
-          </Button>
-        </TabPane>
-      </Tabs>
+                {fileList.length > 0 && (
+                  <ul className={styles.uploadList}>
+                    {fileList.map((file) => (
+                      <li key={file.uid} className={styles.uploadListItem}>
+                        <span className={styles.uploadListFileName}>{file.name}</span>
+                        <Button
+                          icon={<DeleteOutlined />}
+                          size="small"
+                          danger
+                          className={styles.uploadListRemoveButton}
+                          onClick={() => handleRemoveSelected(file)}
+                        />
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </>
+            ),
+          },
+          {
+            key: 'flags',
+            label: 'Flags',
+            children: (
+              <>
+                {flagsLoading ? (
+                  <Spin />
+                ) : flagsError ? (
+                  <Alert type="error" message="Error loading flags" />
+                ) : (
+                  <Table
+                    rowKey="id"
+                    dataSource={flags}
+                    columns={flagColumns}
+                    pagination={false}
+                    size="small"
+                    locale={{ emptyText: 'No flags found' }}
+                  />
+                )}
+                <Button
+                  type="primary"
+                  onClick={() => setCreateFlagModalOpen(true)}
+                  className={styles.createButton}
+                >
+                  Add Flag
+                </Button>
+              </>
+            ),
+          },
+          {
+            key: 'hints',
+            label: 'Hints',
+            children: (
+              <>
+                {hintsLoading ? (
+                  <Spin />
+                ) : hintsError ? (
+                  <Alert type="error" message="Error loading hints" />
+                ) : (
+                  <Table
+                    rowKey="id"
+                    dataSource={hints}
+                    columns={hintsColumns}
+                    pagination={false}
+                    size="small"
+                    locale={{ emptyText: 'No hints found' }}
+                  />
+                )}
+                <Button
+                  type="primary"
+                  onClick={() => setCreateHintModalOpen(true)}
+                  className={styles.createButton}
+                >
+                  Add Hint
+                </Button>
+              </>
+            ),
+          },
+        ]}
+      />
+
       {createFlagModalOpen && (
         <CreateFlagModal
           open={createFlagModalOpen}

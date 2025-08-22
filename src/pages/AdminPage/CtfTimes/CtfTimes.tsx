@@ -19,7 +19,6 @@ import { DescriptionText } from '@/shared/DescriptionText';
 import { useFreezeChallengeTime, useThawallChallengeTime } from '@/hooks/useQueries';
 import { formatInTimeZone, timestampToRFC3339 } from '@/lib/date';
 
-const { TabPane } = Tabs;
 const { Text } = Typography;
 
 interface CalcState {
@@ -174,83 +173,103 @@ export const CtfTimes: React.FC = () => {
   );
 
   return (
-    <Tabs defaultActiveKey="start" className={styles.tabs}>
-      <TabPane tab="Start Time" key="start">
-        <Text className={styles.description}>
-          This is the time when the competition will begin. Challenges will automatically unlock and
-          users will be able to submit answers.
-        </Text>
-        <Form
-          form={form}
-          layout="vertical"
-          initialValues={initialValues}
-          onValuesChange={onValuesChange}
-          className={styles.formContainer}
-        >
-          {renderTimeFields()}
-          <Form.Item label="Timezone">
-            <Select options={timezones} value={tz} onChange={onTzChange} />
-          </Form.Item>
-          {renderCommonFooter()}
-        </Form>
-      </TabPane>
-
-      <TabPane tab="End Time" key="end">
-        <Text className={styles.description}>
-          This is the time when the competition will end. Challenges will automatically close and
-          users won't be able to submit answers.
-        </Text>
-        <Form
-          form={form}
-          layout="vertical"
-          initialValues={initialValues}
-          onValuesChange={onValuesChange}
-          className={styles.formContainer}
-        >
-          {renderTimeFields()}
-          <Form.Item label="Timezone">
-            <Select options={timezones} value={tz} onChange={onTzChange} />
-          </Form.Item>
-          <Form.Item name="viewAfter" valuePropName="checked" className={styles.checkbox}>
-            <Checkbox>View After CTF</Checkbox>
-          </Form.Item>
-          <DescriptionText
-            children="Allows challenges to be viewed after the End Time, however no new submissions will be
-            recorded. For participants to be able to submit after End Time but not alter the
-            scoreboard, configure Freeze Time to be your End Time."
-          />
-          {renderCommonFooter()}
-        </Form>
-      </TabPane>
-
-      <TabPane tab="Freeze Time" key="freeze">
-        <Text className={styles.description}>
-          Freeze time specifies the timestamp that the competition will be frozen to. All solves
-          before the freeze time will be shown, but new solves won't be shown to users.
-        </Text>
-        <Form
-          form={form}
-          layout="vertical"
-          initialValues={initialValues}
-          onValuesChange={onValuesChange}
-          className={styles.formContainer}
-        >
-          {renderTimeFields()}
-          <Form.Item label="Timezone">
-            <Select options={timezones} value={tz} onChange={onTzChange} />
-          </Form.Item>
-          {renderCommonFooter()}
-        </Form>
-        <div className={styles.buttonContainer}>
-          <Button onClick={handleFreezeOk} type="primary">
-            Freeze
-          </Button>
-          <Button onClick={handleThawallOk} type="primary">
-            Thawall
-          </Button>
-        </div>
-      </TabPane>
-    </Tabs>
+    <Tabs
+      defaultActiveKey="start"
+      className={styles.tabs}
+      items={[
+        {
+          key: 'start',
+          label: 'Start Time',
+          children: (
+            <>
+              <Text className={styles.description}>
+                This is the time when the competition will begin. Challenges will automatically
+                unlock and users will be able to submit answers.
+              </Text>
+              <Form
+                form={form}
+                layout="vertical"
+                initialValues={initialValues}
+                onValuesChange={onValuesChange}
+                className={styles.formContainer}
+              >
+                {renderTimeFields()}
+                <Form.Item label="Timezone">
+                  <Select options={timezones} value={tz} onChange={onTzChange} />
+                </Form.Item>
+                {renderCommonFooter()}
+              </Form>
+            </>
+          ),
+        },
+        {
+          key: 'end',
+          label: 'End Time',
+          children: (
+            <>
+              <Text className={styles.description}>
+                This is the time when the competition will end. Challenges will automatically close
+                and users won't be able to submit answers.
+              </Text>
+              <Form
+                form={form}
+                layout="vertical"
+                initialValues={initialValues}
+                onValuesChange={onValuesChange}
+                className={styles.formContainer}
+              >
+                {renderTimeFields()}
+                <Form.Item label="Timezone">
+                  <Select options={timezones} value={tz} onChange={onTzChange} />
+                </Form.Item>
+                <Form.Item name="viewAfter" valuePropName="checked" className={styles.checkbox}>
+                  <Checkbox>View After CTF</Checkbox>
+                </Form.Item>
+                <DescriptionText>
+                  Allows challenges to be viewed after the End Time, however no new submissions will
+                  be recorded. For participants to be able to submit after End Time but not alter
+                  the scoreboard, configure Freeze Time to be your End Time.
+                </DescriptionText>
+                {renderCommonFooter()}
+              </Form>
+            </>
+          ),
+        },
+        {
+          key: 'freeze',
+          label: 'Freeze Time',
+          children: (
+            <>
+              <Text className={styles.description}>
+                Freeze time specifies the timestamp that the competition will be frozen to. All
+                solves before the freeze time will be shown, but new solves won't be shown to users.
+              </Text>
+              <Form
+                form={form}
+                layout="vertical"
+                initialValues={initialValues}
+                onValuesChange={onValuesChange}
+                className={styles.formContainer}
+              >
+                {renderTimeFields()}
+                <Form.Item label="Timezone">
+                  <Select options={timezones} value={tz} onChange={onTzChange} />
+                </Form.Item>
+                {renderCommonFooter()}
+              </Form>
+              <div className={styles.buttonContainer}>
+                <Button onClick={handleFreezeOk} type="primary">
+                  Freeze
+                </Button>
+                <Button onClick={handleThawallOk} type="primary">
+                  Thawall
+                </Button>
+              </div>
+            </>
+          ),
+        },
+      ]}
+    />
   );
 };
 

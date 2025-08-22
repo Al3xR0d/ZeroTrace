@@ -11,6 +11,7 @@ export interface Challenge {
   start: string;
   end: string;
   freeze: boolean;
+  solved_by_me: boolean;
 }
 
 export type CreateChallenge = {

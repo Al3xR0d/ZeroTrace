@@ -56,7 +56,7 @@ export const EditUserModal: React.FC<Props> = ({ open, onCancel, onSuccess, init
         confirmLoading={isLoading}
         onOk={handleSubmit}
       >
-        <Form form={form}>
+        <Form form={form} initialValues={initialValues}>
           <Form.Item name="name" label="Name">
             <Input />
           </Form.Item>
@@ -72,7 +72,6 @@ export const EditUserModal: React.FC<Props> = ({ open, onCancel, onSuccess, init
           <Flex vertical={false} justify="space-between" align="baseline">
             <Form.Item name="type" label="Type">
               <Select
-                defaultValue={initialValues.type}
                 options={[
                   { value: 'user', label: 'User' },
                   { value: 'admin', label: 'Admin' },

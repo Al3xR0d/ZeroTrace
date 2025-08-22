@@ -1,15 +1,11 @@
 import React, { useState, useCallback, useMemo } from 'react';
-import { Collapse, Typography, Spin } from 'antd';
+import { Collapse, Typography } from 'antd';
 import { ChallengesLayout } from '@/components/Layout/ChallengesLayout';
 import { categoriesMap } from '@/lib/categories';
 import styles from './TasksPage.module.css';
-import {
-  useFetchAllChallenges,
-  useFetchCurrentChallengeUser,
-  useFetchChallengeFilesUser,
-} from '@/hooks/useQueries';
-import { ChallengeCard } from '@/components/ChallengeCard';
+import { useFetchCurrentChallengeUser } from '@/hooks/useQueries';
 import { ChallengeModal } from '@/components/Modal/ChallengeModal';
+import { PanelContent } from '@/components/PanelContent';
 
 const { Title } = Typography;
 
@@ -24,44 +20,17 @@ const HeaderLabel: React.FC<{ name: string }> = ({ name }) => (
 
 export const TasksPage: React.FC = () => {
   const categories = Array.from(categoriesMap.entries());
-  const [challengeId, setChallengeId] = useState<number | null>(null);
+
   const [selectedChallengeId, setSelectedChallengeId] = useState<number | null>(null);
   const [challengeModalOpen, setChallengeModalOpen] = useState<boolean>(false);
   const [selectedCategoryName, setSelectedCategoryName] = useState<string | null>(null);
 
-  const {
-    data: challenges = [],
-    isLoading: challengesLoading,
-    isError: challengesError,
-  } = useFetchAllChallenges(challengeId ?? 0);
+  const { data: currentChallenge } = useFetchCurrentChallengeUser(selectedChallengeId ?? 0);
 
-  const {
-    data: currentChallenge,
-    isLoading: currentLoading,
-    isError: currentError,
-  } = useFetchCurrentChallengeUser(selectedChallengeId ?? 0);
-
-  const handleCollapseChange = useCallback((activeKey: string | string[]) => {
-    if (!activeKey) {
-      setChallengeId(null);
-      setSelectedCategoryName(null);
-      return;
-    }
-    const key = Array.isArray(activeKey) ? activeKey[0] : activeKey;
-    const id = parseInt(key, 10);
-    if (!Number.isNaN(id)) {
-      setChallengeId(id);
-      const categoryName = categoriesMap.get(id) ?? null;
-      setSelectedCategoryName(categoryName);
-    } else {
-      setChallengeId(null);
-      setSelectedCategoryName(null);
-    }
-  }, []);
-
-  const handleChallengeClick = useCallback((id: number) => {
+  const handleChallengeClick = useCallback((id: number, categoryName: string) => {
     setChallengeModalOpen(true);
     setSelectedChallengeId(id);
+    setSelectedCategoryName(categoryName);
   }, []);
 
   const collapseItems = useMemo(
@@ -69,33 +38,16 @@ export const TasksPage: React.FC = () => {
       categories.map(([id, name]) => ({
         key: id.toString(),
         label: <HeaderLabel name={name} />,
+        forceRender: true,
         children: (
-          <div className={styles.panelBody}>
-            {challengesLoading && <Spin />}
-            {challengesError && <span className={styles.message}>Download error</span>}
-            {!challengesLoading && !challengesError && (
-              <div className={styles.cardsGrid}>
-                {challenges.length > 0 ? (
-                  challenges
-                    .sort((a, b) => a.value - b.value)
-                    .map((challenge) => (
-                      <ChallengeCard
-                        key={challenge.id}
-                        id={challenge.id}
-                        name={challenge.name}
-                        value={challenge.value}
-                        onClick={handleChallengeClick}
-                      />
-                    ))
-                ) : (
-                  <span className={styles.message}>No challenges yet</span>
-                )}
-              </div>
-            )}
-          </div>
+          <PanelContent
+            categoryId={id}
+            categoryName={name}
+            onChallengeClick={handleChallengeClick}
+          />
         ),
       })),
-    [categories, challenges, challengesLoading, challengesError],
+    [categories, handleChallengeClick],
   );
 
   return (
@@ -111,17 +63,18 @@ export const TasksPage: React.FC = () => {
             bordered={false}
             className={styles.collapse}
             expandIconPosition="end"
-            onChange={handleCollapseChange}
             items={collapseItems}
           />
         </div>
       </div>
+
       {challengeModalOpen && currentChallenge && selectedCategoryName && (
         <ChallengeModal
           open={challengeModalOpen}
           onCancel={() => {
             setChallengeModalOpen(false);
             setSelectedChallengeId(null);
+            setSelectedCategoryName(null);
           }}
           currentChallenge={currentChallenge}
           categoryName={selectedCategoryName}

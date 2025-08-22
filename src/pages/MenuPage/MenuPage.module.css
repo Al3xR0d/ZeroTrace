@@ -49,6 +49,9 @@
   cursor: pointer;
   display: flex;
   align-items: center;
+  margin-bottom: auto;
+  position: relative;
+  left: -45px;
 }
 
 .bellIcon {

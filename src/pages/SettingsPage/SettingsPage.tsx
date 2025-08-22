@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Tabs, Tooltip, ConfigProvider, Switch } from 'antd';
 import type { TabsProps } from 'antd';
 import { LockOutlined, NotificationOutlined, UserOutlined } from '@ant-design/icons';
@@ -6,16 +6,29 @@ import styles from './SettingsPage.module.css';
 import { AudioOutlined, AudioMutedOutlined } from '@ant-design/icons';
 import { useAudioStore } from '@/store/audioStore';
 import { CloseSquare } from '@/shared/CloseSquare';
+import { ChangePasswordModal } from '@/components/Modal/ChangePasswordModal';
 
 export const SettingsPage: React.FC = () => {
   const { enabled, setEnabled } = useAudioStore();
+  const [isChangePasswordModalOpen, setChangePasswordModalOpen] = useState<boolean>(false);
 
   const settings = [
     {
       title: 'Account Security',
       icon: <LockOutlined />,
       items: [
-        { label: 'Password', action: 'Change Password', tooltip: 'Update your login credentials' },
+        {
+          label: 'Password',
+          action: (
+            <button
+              className={styles.settingButton}
+              onClick={() => setChangePasswordModalOpen(true)}
+            >
+              Change Password
+            </button>
+          ),
+          tooltip: 'Update your login credentials',
+        },
         {
           label: 'Two-factor Authentication',
           action: 'Enable',
@@ -81,7 +94,11 @@ export const SettingsPage: React.FC = () => {
             <div className={styles.settingLabel}>{it.label}</div>
             <div className={styles.settingAction}>
               <Tooltip title={it.tooltip} placement="right" rootClassName={styles.customTooltip}>
-                <button className={styles.settingButton}>{it.action}</button>
+                {typeof it.action === 'string' ? (
+                  <button className={styles.settingButton}>{it.action}</button>
+                ) : (
+                  it.action
+                )}
               </Tooltip>
             </div>
           </div>
@@ -108,6 +125,12 @@ export const SettingsPage: React.FC = () => {
           <Tabs defaultActiveKey="0" items={tabs} className={styles.customTabs} animated={false} />
         </div>
       </div>
+      {isChangePasswordModalOpen && (
+        <ChangePasswordModal
+          open={isChangePasswordModalOpen}
+          onCancel={() => setChangePasswordModalOpen(false)}
+        />
+      )}
     </ConfigProvider>
   );
 };

@@ -13,7 +13,6 @@ import {
   notification,
 } from 'antd';
 import type { UploadFile } from 'antd';
-import TabPane from 'antd/es/tabs/TabPane';
 import { DescriptionText } from '@/shared/DescriptionText';
 import styles from './CreateChallengeModal.module.css';
 import { categoryOptions } from '@/lib/categories';
@@ -169,132 +168,164 @@ export const CreateChallengeModal: React.FC<Props> = ({ open, onCancel, onSucces
           </Button>,
         ]}
       >
-        <Tabs defaultActiveKey="standard" onChange={(e) => setType(e)}>
-          <TabPane tab="Standard" key="standard">
-            <Flex gap="middle" vertical>
-              <Input placeholder="Name" onChange={(e) => setName(e.target.value)} value={name} />
-              <DescriptionText children="The name of your challenge" />
-              <Select
-                options={categoryOptions}
-                placeholder="Category"
-                onChange={(e) => setCategory(e)}
-                value={category ?? undefined}
-              />
-              <DescriptionText children="The category of your challenge" />
-              <TextArea
-                placeholder="Message"
-                rows={4}
-                onChange={(e) => setDescription(e.target.value)}
-                value={description}
-              />
-              <DescriptionText children="Use this to give a brief introduction to your challenge" />
-              <InputNumber
-                placeholder="Enter value"
-                min={1}
-                className={styles.inputNumber}
-                onChange={(e) => setValue(e ?? null)}
-                value={value}
-                onKeyDown={handleKeyDown}
-              />
-              <DescriptionText children="This is how many points the challenge is worth initially" />
-              <Select
-                placeholder="State"
-                onChange={(e) => setState(e)}
-                options={[
-                  { value: 'visible', label: 'Visible' },
-                  { value: 'hidden', label: 'Hidden' },
-                ]}
-                value={state}
-              />
-              <InputNumber
-                placeholder="Max attempts"
-                min={1}
-                className={styles.inputNumber}
-                onChange={(e) => setMaxAttempts(e ?? null)}
-                value={maxAttempts}
-                onKeyDown={handleKeyDown}
-              />
-              <Input
-                type="datetime-local"
-                placeholder="Start"
-                value={start}
-                onChange={(e) => setStart(e.target.value)}
-                className={styles.inputDate}
-              />
-              <Input
-                type="datetime-local"
-                placeholder="End"
-                value={end}
-                onChange={(e) => setEnd(e.target.value)}
-                className={styles.inputDate}
-              />
-              <Select
-                placeholder="Freeze"
-                onChange={(e) => setFreeze(e)}
-                options={[
-                  { value: true, label: 'Frozen' },
-                  { value: false, label: 'Active' },
-                ]}
-                value={freeze}
-              />
-              <Input
-                placeholder="Flag"
-                value={flagContent}
-                onChange={(e) => setFlagContent(e.target.value)}
-              />
-              <DescriptionText children="Static flag for your challenge" />
-              <Checkbox onChange={(e) => setNeedToUpload(e.target.checked)} checked={needToUpload}>
-                Need to upload files
-              </Checkbox>
-              {needToUpload && (
-                <Upload {...uploadProps}>
-                  <Button icon={<UploadOutlined />}>Select File(s)</Button>
-                </Upload>
-              )}
-            </Flex>
-          </TabPane>
-          <TabPane tab="Dynamic" key="dynamic">
-            <Flex gap="middle" vertical>
-              <Card>
-                Dynamic value challenges decrease in value as they receive solves. The more solves a
-                dynamic challenge has, the lower its value is to everyone who has solved it.
-              </Card>
-              <Input placeholder="Name" />
-              <DescriptionText children="The name of your challenge" />
-              <Input placeholder="Category" />
-              <DescriptionText children="The category of your challenge" />
-              <TextArea placeholder="Message" rows={4} />
-              <DescriptionText children="Use this to give a brief introduction to your challenge" />
-              <InputNumber placeholder="Enter value" min={1} className={styles.inputNumber} />
-              <DescriptionText children="This is how many points the challenge is worth initially" />
-              <Select
-                defaultValue="linar"
-                options={[
-                  { value: 'linar', label: 'Linar' },
-                  { value: 'logarithmic', label: 'Logarithmic' },
-                ]}
-              />
-              <DescriptionText>
-                How the dynamic value will be calculated based on the Decay value
-                <br />– Linear: Calculated as{' '}
-                <span className={styles.attentionText}>Initial - (Decay * SolveCount)</span>
-                <br />– Logarithmic: Calculated as{' '}
-                <span className={styles.attentionText}>
-                  (((Minimum - Initial) / (Decay^2)) * (SolveCount^2)) + Initial
-                </span>
-              </DescriptionText>
-              <InputNumber placeholder="Decay value" min={1} className={styles.inputNumber} />
-              <DescriptionText>
-                The decay value is used differently depending on the above Decay Function
-                <br />- Linear: The amount of points deducted per solve. Equal deduction per solve.
-                <br />- Logarithmic: The amount of solves before the challenge reaches its minimum
-                value. Earlier solves will lose less points. Later solves will lose more points
-              </DescriptionText>
-              <InputNumber placeholder="Minimum Value" className={styles.inputNumber} min={1} />
-              <DescriptionText children="This is the lowest that the challenge can be worth" />
-            </Flex>
-          </TabPane>
-        </Tabs>
+        <Tabs
+          defaultActiveKey="standard"
+          onChange={(e) => setType(e)}
+          items={[
+            {
+              key: 'standard',
+              label: 'Standard',
+              children: (
+                <Flex gap="middle" vertical>
+                  <Input
+                    placeholder="Name"
+                    onChange={(e) => setName(e.target.value)}
+                    value={name}
+                  />
+                  <DescriptionText>The name of your challenge</DescriptionText>
+                  <Select
+                    options={categoryOptions}
+                    placeholder="Category"
+                    onChange={(e) => setCategory(e)}
+                    value={category ?? undefined}
+                  />
+                  <DescriptionText>The category of your challenge</DescriptionText>
+                  <TextArea
+                    placeholder="Message"
+                    rows={4}
+                    onChange={(e) => setDescription(e.target.value)}
+                    value={description}
+                  />
+                  <DescriptionText>
+                    Use this to give a brief introduction to your challenge
+                  </DescriptionText>
+                  <InputNumber
+                    placeholder="Enter value"
+                    min={1}
+                    className={styles.inputNumber}
+                    onChange={(e) => setValue(e ?? null)}
+                    value={value}
+                    onKeyDown={handleKeyDown}
+                  />
+                  <DescriptionText>
+                    This is how many points the challenge is worth initially
+                  </DescriptionText>
+                  <Select
+                    placeholder="State"
+                    onChange={(e) => setState(e)}
+                    options={[
+                      { value: 'visible', label: 'Visible' },
+                      { value: 'hidden', label: 'Hidden' },
+                    ]}
+                    value={state}
+                  />
+                  <InputNumber
+                    placeholder="Max attempts"
+                    min={1}
+                    className={styles.inputNumber}
+                    onChange={(e) => setMaxAttempts(e ?? null)}
+                    value={maxAttempts}
+                    onKeyDown={handleKeyDown}
+                  />
+                  <Input
+                    type="datetime-local"
+                    placeholder="Start"
+                    value={start}
+                    onChange={(e) => setStart(e.target.value)}
+                    className={styles.inputDate}
+                  />
+                  <Input
+                    type="datetime-local"
+                    placeholder="End"
+                    value={end}
+                    onChange={(e) => setEnd(e.target.value)}
+                    className={styles.inputDate}
+                  />
+                  <Select
+                    placeholder="Freeze"
+                    onChange={(e) => setFreeze(e)}
+                    options={[
+                      { value: true, label: 'Frozen' },
+                      { value: false, label: 'Active' },
+                    ]}
+                    value={freeze}
+                  />
+                  <Input
+                    placeholder="Flag"
+                    value={flagContent}
+                    onChange={(e) => setFlagContent(e.target.value)}
+                  />
+                  <DescriptionText>Static flag for your challenge</DescriptionText>
+                  <Checkbox
+                    onChange={(e) => setNeedToUpload(e.target.checked)}
+                    checked={needToUpload}
+                  >
+                    Need to upload files
+                  </Checkbox>
+                  {needToUpload && (
+                    <Upload {...uploadProps}>
+                      <Button icon={<UploadOutlined />}>Select File(s)</Button>
+                    </Upload>
+                  )}
+                </Flex>
+              ),
+            },
+            {
+              key: 'dynamic',
+              label: 'Dynamic',
+              children: (
+                <Flex gap="middle" vertical>
+                  <Card>
+                    Dynamic value challenges decrease in value as they receive solves. The more
+                    solves a dynamic challenge has, the lower its value is to everyone who has
+                    solved it.
+                  </Card>
+                  <Input placeholder="Name" />
+                  <DescriptionText>The name of your challenge</DescriptionText>
+                  <Input placeholder="Category" />
+                  <DescriptionText>The category of your challenge</DescriptionText>
+                  <TextArea placeholder="Message" rows={4} />
+                  <DescriptionText>
+                    Use this to give a brief introduction to your challenge
+                  </DescriptionText>
+                  <InputNumber placeholder="Enter value" min={1} className={styles.inputNumber} />
+                  <DescriptionText>
+                    This is how many points the challenge is worth initially
+                  </DescriptionText>
+                  <Select
+                    defaultValue="linar"
+                    options={[
+                      { value: 'linar', label: 'Linar' },
+                      { value: 'logarithmic', label: 'Logarithmic' },
+                    ]}
+                  />
+                  <DescriptionText>
+                    How the dynamic value will be calculated based on the Decay value
+                    <br />– Linear: Calculated as{' '}
+                    <span className={styles.attentionText}>Initial - (Decay * SolveCount)</span>
+                    <br />– Logarithmic: Calculated as{' '}
+                    <span className={styles.attentionText}>
+                      (((Minimum - Initial) / (Decay^2)) * (SolveCount^2)) + Initial
+                    </span>
+                  </DescriptionText>
+                  <InputNumber placeholder="Decay value" min={1} className={styles.inputNumber} />
+                  <DescriptionText>
+                    The decay value is used differently depending on the above Decay Function
+                    <br />- Linear: The amount of points deducted per solve. Equal deduction per
+                    solve.
+                    <br />- Logarithmic: The amount of solves before the challenge reaches its
+                    minimum value. Earlier solves will lose less points. Later solves will lose more
+                    points
+                  </DescriptionText>
+                  <InputNumber placeholder="Minimum Value" className={styles.inputNumber} min={1} />
+                  <DescriptionText>
+                    This is the lowest that the challenge can be worth
+                  </DescriptionText>
+                </Flex>
+              ),
+            },
+          ]}
+        />
       </Modal>
     </>
   );
