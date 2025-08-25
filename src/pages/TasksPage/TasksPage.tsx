@@ -1,11 +1,17 @@
 import React, { useState, useCallback, useMemo } from 'react';
-import { Collapse, Typography } from 'antd';
+import { Collapse, Typography, Spin } from 'antd';
 import { ChallengesLayout } from '@/components/Layout/ChallengesLayout';
 import { categoriesMap } from '@/lib/categories';
+import { usePrevious } from 'react-use';
 import styles from './TasksPage.module.css';
-import { useFetchCurrentChallengeUser } from '@/hooks/useQueries';
+import {
+  useFetchAllChallenges,
+  useFetchCurrentChallengeUser,
+  useFetchChallengeFilesUser,
+} from '@/hooks/useQueries';
+import { ChallengeCard } from '@/components/ChallengeCard';
 import { ChallengeModal } from '@/components/Modal/ChallengeModal';
-import { PanelContent } from '@/components/PanelContent';
+import { Challenge } from '@/types';
 
 const { Title } = Typography;
 
@@ -20,34 +26,120 @@ const HeaderLabel: React.FC<{ name: string }> = ({ name }) => (
 
 export const TasksPage: React.FC = () => {
   const categories = Array.from(categoriesMap.entries());
-
+  const [categoryId, setCategoryId] = useState<number | null>(null);
   const [selectedChallengeId, setSelectedChallengeId] = useState<number | null>(null);
   const [challengeModalOpen, setChallengeModalOpen] = useState<boolean>(false);
   const [selectedCategoryName, setSelectedCategoryName] = useState<string | null>(null);
 
-  const { data: currentChallenge } = useFetchCurrentChallengeUser(selectedChallengeId ?? 0);
+  const {
+    data: challenges = [],
+    isLoading: challengesLoading,
+    isError: challengesError,
+  } = useFetchAllChallenges(categoryId ?? 0);
+  const prevChallenges = usePrevious(challenges);
 
-  const handleChallengeClick = useCallback((id: number, categoryName: string) => {
+  const {
+    data: currentChallenge,
+    isLoading: currentChallengeLoading,
+    isError: currentError,
+  } = useFetchCurrentChallengeUser(selectedChallengeId ?? 0);
+
+  const handleCollapseChange = useCallback((activeKey: string | string[]) => {
+    if (!activeKey) {
+      setCategoryId(null);
+      setSelectedCategoryName(null);
+      return;
+    }
+    const key = Array.isArray(activeKey) ? activeKey[0] : activeKey;
+    const id = parseInt(key, 10);
+    if (!Number.isNaN(id)) {
+      setCategoryId(id);
+      const categoryName = categoriesMap.get(id) ?? null;
+      setSelectedCategoryName(categoryName);
+    } else {
+      setCategoryId(null);
+      setSelectedCategoryName(null);
+    }
+  }, []);
+
+  const handleChallengeClick = useCallback((id: number) => {
     setChallengeModalOpen(true);
     setSelectedChallengeId(id);
-    setSelectedCategoryName(categoryName);
   }, []);
 
   const collapseItems = useMemo(
     () =>
-      categories.map(([id, name]) => ({
-        key: id.toString(),
-        label: <HeaderLabel name={name} />,
-        forceRender: true,
-        children: (
-          <PanelContent
-            categoryId={id}
-            categoryName={name}
-            onChallengeClick={handleChallengeClick}
-          />
-        ),
-      })),
-    [categories, handleChallengeClick],
+      categories.map(([id, name]) => {
+        if (id === categoryId) {
+          return {
+            key: id.toString(),
+            label: <HeaderLabel name={name} />,
+            children: (
+              <div className={styles.panelBody}>
+                {challengesLoading && <Spin />}
+                {challengesError && <span className={styles.message}>Download error</span>}
+                {!challengesLoading && !challengesError && (
+                  <div className={styles.cardsGrid}>
+                    {challenges.length > 0 ? (
+                      challenges
+                        .sort((a, b) => a.value - b.value)
+                        .filter((challenge) => challenge.category_id === id)
+                        .map((challenge) => (
+                          <ChallengeCard
+                            key={`${id}:${challenge.id}`}
+                            id={challenge.id}
+                            name={challenge.name}
+                            value={challenge.value}
+                            onClick={handleChallengeClick}
+                            done={challenge.solved_by_me}
+                          />
+                        ))
+                    ) : (
+                      <span className={styles.message}>No challenges yet</span>
+                    )}
+                  </div>
+                )}
+              </div>
+            ),
+          };
+        }
+        return {
+          key: id.toString(),
+          label: <HeaderLabel name={name} />,
+          children: (
+            <div className={styles.panelBody}>
+              {prevChallenges ? (
+                <div className={styles.cardsGrid}>
+                  {prevChallenges
+                    .sort((a, b) => a.value - b.value)
+                    .filter((challenge) => challenge.category_id === id)
+                    .map((challenge) => (
+                      <ChallengeCard
+                        key={`${id}:${challenge.id}`}
+                        id={challenge.id}
+                        name={challenge.name}
+                        value={challenge.value}
+                        onClick={handleChallengeClick}
+                        done={challenge.solved_by_me}
+                      />
+                    ))}
+                </div>
+              ) : (
+                <span className={styles.message}>No challenges yet</span>
+              )}
+            </div>
+          ),
+        };
+      }),
+    [
+      categories,
+      challenges,
+      challengesLoading,
+      challengesError,
+      categoryId,
+      prevChallenges,
+      handleChallengeClick,
+    ],
   );
 
   return (
@@ -63,18 +155,17 @@ export const TasksPage: React.FC = () => {
             bordered={false}
             className={styles.collapse}
             expandIconPosition="end"
+            onChange={handleCollapseChange}
             items={collapseItems}
           />
         </div>
       </div>
-
       {challengeModalOpen && currentChallenge && selectedCategoryName && (
         <ChallengeModal
           open={challengeModalOpen}
           onCancel={() => {
             setChallengeModalOpen(false);
             setSelectedChallengeId(null);
-            setSelectedCategoryName(null);
           }}
           currentChallenge={currentChallenge}
           categoryName={selectedCategoryName}

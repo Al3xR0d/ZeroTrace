@@ -1,56 +1,60 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Flex, Switch, Badge } from 'antd';
 import styles from './MenuPage.module.css';
-import { UserOutlined, AudioOutlined, AudioMutedOutlined, BellOutlined } from '@ant-design/icons';
-import { useNavigate } from 'react-router-dom';
+import { UserOutlined, BellOutlined } from '@ant-design/icons';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useUserStore } from '@/store/userStore';
 import { useQueryClient } from '@tanstack/react-query';
-import { useAudioStore } from '@/store/audioStore';
 import { useNotificationsSSE, useCurrentUser } from '@/hooks/useQueries';
 import { useNotificationStore } from '@/store/notificationsStore';
 import { NotificationModal } from '@/components/Modal/NotificationModal';
-import { useLocation } from 'react-router-dom';
+import Cookies from 'js-cookie';
 
 export const MenuPage: React.FC = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { notifications, unreadCount, markAsRead, clearAll } = useNotificationStore();
-  const { refetch } = useCurrentUser();
+  const { data: userData, refetch } = useCurrentUser();
   const [isModalOpen, setModalOpen] = useState(false);
-  const [loggedOut, setLoggedOut] = useState(false);
 
   const clearUser = useUserStore((store) => store.clearUser);
   const currentUser = useUserStore((store) => store.currentUser);
   const isAuthenticated = !!currentUser?.name;
-  const { enabled, setEnabled } = useAudioStore();
 
   const location = useLocation();
 
   useNotificationsSSE();
 
   const handleProfileClick = () => {
-    navigate('/login');
+    if (!isAuthenticated) {
+      navigate('/login');
+    }
   };
 
   const handleLogout = async () => {
-    clearUser();
-    await useUserStore.persist.clearStorage();
-    queryClient.clear();
-    document.cookie = 'duck=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-    setLoggedOut(true);
-    console.log(currentUser);
-    navigate('/menu', { replace: true });
+    try {
+      clearUser();
+      await useUserStore.persist.clearStorage();
+      queryClient.removeQueries({ queryKey: ['currentUser'] });
+      queryClient.invalidateQueries({ queryKey: ['currentUser'] });
+      document.cookie = 'duck=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+      navigate('/menu', { replace: true });
+    } catch (error) {
+      console.error('Ошибка при выходе:', error);
+    }
   };
 
-  if (!isAuthenticated && location.pathname !== '/menu') {
-    navigate('/menu', { replace: true });
-  }
+  useEffect(() => {
+    if (!isAuthenticated && location.pathname !== '/menu') {
+      navigate('/menu', { replace: true });
+    }
+  }, [isAuthenticated, location.pathname, navigate]);
 
   useEffect(() => {
-    if (location.pathname === '/menu' && !loggedOut) {
+    if (location.pathname === '/menu' && isAuthenticated) {
       refetch();
     }
-  }, [location.pathname, loggedOut]);
+  }, [location.pathname, isAuthenticated, refetch]);
 
   return (
     <div className={styles.pageContainer}>
@@ -102,14 +106,6 @@ export const MenuPage: React.FC = () => {
             <Button className="custom-btn" onClick={handleLogout}>
               Exit
             </Button>
-            {/* <div className={styles.audioToggle}>
-              <Switch
-                checked={enabled}
-                onChange={(val) => setEnabled(val)}
-                checkedChildren={<AudioOutlined />}
-                unCheckedChildren={<AudioMutedOutlined />}
-              />
-            </div> */}
           </>
         )}
       </Flex>
